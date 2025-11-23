@@ -1,12 +1,28 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Header } from "@/components/Header";
+import { Hero } from "@/components/Hero";
+import { Features } from "@/components/Features";
+import { CardCarousel } from "@/components/CardCarousel";
+import { Customers } from "@/components/Customers";
+import { Security } from "@/components/Security";
+import { Footer } from "@/components/Footer";
+import { translations } from "@/lib/translations";
 
 const Index = () => {
+  const [language, setLanguage] = useState("en");
+  const content = translations[language as keyof typeof translations];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header onLanguageChange={setLanguage} currentLanguage={language} />
+      <main>
+        <Hero content={content.hero} />
+        <Features content={content.features} />
+        <CardCarousel />
+        <Customers />
+        <Security />
+      </main>
+      <Footer />
     </div>
   );
 };
