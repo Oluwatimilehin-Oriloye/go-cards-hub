@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Menu, X, Globe } from "lucide-react";
 import {
@@ -15,6 +16,7 @@ interface HeaderProps {
 }
 
 export const Header = ({ onLanguageChange, currentLanguage }: HeaderProps) => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -58,7 +60,11 @@ export const Header = ({ onLanguageChange, currentLanguage }: HeaderProps) => {
                 <SelectItem value="pi">Pidgin</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="default" className="bg-gradient-orange hover:opacity-90">
+            <Button 
+              variant="default" 
+              className="bg-gradient-orange hover:opacity-90"
+              onClick={() => navigate("/login")}
+            >
               Get Started
             </Button>
           </div>
@@ -102,7 +108,11 @@ export const Header = ({ onLanguageChange, currentLanguage }: HeaderProps) => {
                 <SelectItem value="pi">Pidgin</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="default" className="w-full bg-gradient-orange hover:opacity-90">
+            <Button 
+              variant="default" 
+              className="w-full bg-gradient-orange hover:opacity-90"
+              onClick={() => navigate("/login")}
+            >
               Get Started
             </Button>
           </div>
