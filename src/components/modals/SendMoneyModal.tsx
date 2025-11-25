@@ -18,7 +18,9 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
   const [step, setStep] = useState<Step>("details");
   const [selectedCard, setSelectedCard] = useState("");
   const [amount, setAmount] = useState("");
+  const [bankName, setBankName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
+  const [recipientName, setRecipientName] = useState("");
   const [otp, setOtp] = useState("");
 
   const cards = [
@@ -28,10 +30,12 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
   ];
 
   const handleContinue = () => {
-    if (!selectedCard || !amount || !accountNumber) {
+    if (!selectedCard || !amount || !bankName || !accountNumber) {
       toast.error("Please fill in all fields");
       return;
     }
+    // Simulate fetching recipient name
+    setRecipientName("Adebayo Olusegun");
     setStep("otp");
   };
 
@@ -53,7 +57,9 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
       setStep("details");
       setSelectedCard("");
       setAmount("");
+      setBankName("");
       setAccountNumber("");
+      setRecipientName("");
       setOtp("");
     }, 300);
   };
@@ -104,6 +110,17 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="bankName">Bank Name</Label>
+                <Input
+                  id="bankName"
+                  type="text"
+                  placeholder="e.g., GTBank, Access Bank"
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="account">Recipient Account Number</Label>
                 <Input
                   id="account"
@@ -135,6 +152,11 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
                 Enter the 6-digit code sent to your phone
               </DialogDescription>
             </DialogHeader>
+
+            <div className="bg-muted/50 p-4 rounded-lg mb-4">
+              <p className="text-sm text-muted-foreground">Recipient Name:</p>
+              <p className="text-lg font-semibold text-foreground">{recipientName}</p>
+            </div>
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">

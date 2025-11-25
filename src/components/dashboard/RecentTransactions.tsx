@@ -1,138 +1,143 @@
-import { ChevronRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { TransactionDetailsModal } from "@/components/transactions/TransactionDetailsModal";
+import { useNavigate } from "react-router-dom";
 
 const transactions = [
   {
-    id: 1,
-    date: "13 August 2025, 18:48:45",
-    amount: "₦ 86.35",
-    type: "Withdraw",
-    description: "Ifenna Nwafor",
-    status: "Completed",
+    id: "TXN001234567",
+    type: "outflow" as const,
+    description: "Netflix Subscription",
+    amount: 5000,
+    date: "Nov 25, 2025",
+    time: "2:30 PM",
+    status: "completed" as const,
+    cardName: "Jumia Card",
+    cardLastFour: "1234",
+    merchantName: "Netflix Inc.",
+    merchantCategory: "Entertainment",
+    referenceNumber: "REF-NET-001234567",
+    fees: 0,
   },
   {
-    id: 2,
-    date: "13 August 2025, 18:41:53",
-    amount: "₦ 1,600.00",
-    type: "Swap",
-    description: "NGN to EUR",
-    status: "Completed",
+    id: "TXN001234568",
+    type: "inflow" as const,
+    description: "Card Funding",
+    amount: 50000,
+    date: "Nov 24, 2025",
+    time: "9:15 AM",
+    status: "completed" as const,
+    cardName: "Temu Card",
+    cardLastFour: "5678",
+    referenceNumber: "REF-FUND-001234568",
+    fees: 50,
   },
   {
-    id: 3,
-    date: "13 August 2025, 18:35:14",
-    amount: "₦ 1,600.00",
-    type: "Deposit",
-    description: "IFENNA BLOSSOM NWAFOR",
-    status: "Completed",
-  },
-  {
-    id: 4,
-    date: "14 July 2025, 17:35:15",
-    amount: "₦ 1,552.00",
-    type: "Withdraw",
-    description: "IKENGA OKWUTE",
-    status: "Completed",
-  },
-  {
-    id: 5,
-    date: "03 July 2025, 02:01:20",
-    amount: "₦ 5.00",
-    type: "Withdraw",
-    description: "Card deposit",
-    status: "Completed",
+    id: "TXN001234569",
+    type: "outflow" as const,
+    description: "Amazon Purchase",
+    amount: 25000,
+    date: "Nov 23, 2025",
+    time: "4:20 PM",
+    status: "pending" as const,
+    cardName: "Konga Card",
+    cardLastFour: "9012",
+    merchantName: "Amazon.com",
+    merchantCategory: "Shopping",
+    referenceNumber: "REF-AMZ-001234569",
+    fees: 100,
   },
 ];
 
 export function RecentTransactions() {
-  const { t } = useTranslation();
-  
+  const [selectedTransaction, setSelectedTransaction] = useState<typeof transactions[0] | null>(null);
+  const navigate = useNavigate();
+
+  const displayedTransactions = transactions.slice(0, 3);
+
+  const handleSeeMore = () => {
+    navigate("/transactions");
+  };
+
   return (
-    <section>
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-foreground">{t('dashboard.recentTransactions')}</h2>
-        <button className="text-sm font-medium text-primary hover:text-orange-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:rounded">
-          {t('common.seeAll')}
-        </button>
-      </div>
-
-      <Card className="overflow-hidden border border-border">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-secondary">
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t('transactions.date')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t('transactions.amount')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t('transactions.type')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t('transactions.description')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t('transactions.status')}
-                </th>
-                <th className="w-12 px-6 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border bg-card">
-              {transactions.map((transaction) => (
-                <tr
-                  key={transaction.id}
-                  className="group cursor-pointer transition-colors hover:bg-muted/50 focus-within:bg-muted/50"
-                  tabIndex={0}
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Recent Transactions</CardTitle>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={handleSeeMore}
+            className="text-primary hover:text-primary/80"
+          >
+            See More
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {displayedTransactions.map((transaction) => (
+            <div
+              key={transaction.id}
+              onClick={() => setSelectedTransaction(transaction)}
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className={`p-2 rounded-full ${
+                    transaction.type === "inflow"
+                      ? "bg-green-500/10 text-green-600"
+                      : "bg-red-500/10 text-red-600"
+                  }`}
                 >
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-foreground">
-                    {transaction.date}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-foreground">
-                    {transaction.amount}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                    {transaction.type}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">
-                    {transaction.description}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4">
-                    <Badge className="bg-success-bg text-success hover:bg-success-bg">
-                      ● {transaction.status}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <ChevronRight className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-foreground" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile view - stacked cards */}
-        <div className="block sm:hidden divide-y divide-border">
-          {transactions.map((transaction) => (
-            <div key={transaction.id} className="p-4 hover:bg-muted/50 transition-colors">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <p className="font-medium text-foreground">{transaction.amount}</p>
-                  <p className="text-sm text-muted-foreground">{transaction.type}</p>
+                  {transaction.type === "inflow" ? (
+                    <ArrowDownLeft className="h-5 w-5" />
+                  ) : (
+                    <ArrowUpRight className="h-5 w-5" />
+                  )}
                 </div>
-                <Badge className="bg-success-bg text-success hover:bg-success-bg">
-                  {transaction.status}
-                </Badge>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {transaction.description}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{transaction.date} at {transaction.time}</p>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-1">{transaction.description}</p>
-              <p className="text-xs text-muted-foreground">{transaction.date}</p>
+              <div className="text-right flex items-center gap-3">
+                <div>
+                  <p
+                    className={`font-bold ${
+                      transaction.type === "inflow"
+                        ? "text-green-600"
+                        : "text-foreground"
+                    }`}
+                  >
+                    {transaction.type === "inflow" ? "+" : "-"}₦
+                    {transaction.amount.toLocaleString()}
+                  </p>
+                  <Badge
+                    variant={
+                      transaction.status === "completed" ? "default" : "secondary"
+                    }
+                    className="mt-1"
+                  >
+                    {transaction.status}
+                  </Badge>
+                </div>
+              </div>
             </div>
           ))}
-        </div>
+        </CardContent>
       </Card>
-    </section>
+
+      {selectedTransaction && (
+        <TransactionDetailsModal
+          isOpen={!!selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+          transaction={selectedTransaction}
+        />
+      )}
+    </>
   );
 }
