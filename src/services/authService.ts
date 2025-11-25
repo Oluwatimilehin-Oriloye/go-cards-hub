@@ -6,6 +6,13 @@ interface AuthResponse {
   access_token: string;
 }
 
+export interface UserProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  accountNumber: string;
+}
+
 // 🚨 CRITICAL: Ensure this matches your NestJS base URL and global prefix
 const API_BASE_URL = "http://localhost:3000/auth";
 
@@ -56,6 +63,23 @@ export const verifyOtp = async (otp: string): Promise<string> => {
     }
     throw new Error("OTP verification failed due to a server error.");
   }
+};
+
+export const getProfile = async (): Promise<UserProfile> => {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    throw new Error("Authentication required: Missing JWT token.");
+  }
+
+  // Calls GET /auth/profile
+  const response = await axios.get<UserProfile>(`${API_BASE_URL}/profile`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
 };
 
 /**
