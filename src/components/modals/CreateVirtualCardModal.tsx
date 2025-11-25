@@ -15,12 +15,15 @@ type Step = "create" | "processing" | "success";
 
 export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxCards }: CreateVirtualCardModalProps) {
   const [step, setStep] = useState<Step>("create");
+  const [cardName, setCardName] = useState("");
   const navigate = useNavigate();
   const isLimitReached = currentCardCount >= maxCards;
   const cardCreationFee = 2000;
 
   const handleCreateCard = () => {
-    if (isLimitReached) return;
+    if (isLimitReached || !cardName.trim()) {
+      return;
+    }
     
     setStep("processing");
     
@@ -37,7 +40,10 @@ export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxC
   };
 
   const resetModal = () => {
-    setTimeout(() => setStep("create"), 300);
+    setTimeout(() => {
+      setStep("create");
+      setCardName("");
+    }, 300);
   };
 
   const handleClose = () => {
@@ -63,12 +69,33 @@ export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxC
               </DialogDescription>
             </DialogHeader>
 
+            <div className="py-4">
+              <div className="space-y-2">
+                <label htmlFor="cardName" className="text-sm font-medium text-foreground">
+                  Card Name
+                </label>
+                <input
+                  id="cardName"
+                  type="text"
+                  placeholder="e.g., Jumia Card, Netflix Card"
+                  value={cardName}
+                  onChange={(e) => setCardName(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  maxLength={30}
+                />
+              </div>
+            </div>
+
             <DialogFooter className="gap-2 sm:gap-0">
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
               {!isLimitReached && (
-                <Button onClick={handleCreateCard} className="bg-primary hover:bg-primary/90">
+                <Button 
+                  onClick={handleCreateCard} 
+                  className="bg-primary hover:bg-primary/90"
+                  disabled={!cardName.trim()}
+                >
                   Create Card (₦{cardCreationFee.toLocaleString()})
                 </Button>
               )}

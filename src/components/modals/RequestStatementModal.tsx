@@ -18,6 +18,7 @@ export function RequestStatementModal({ isOpen, onClose }: RequestStatementModal
   const [success, setSuccess] = useState(false);
 
   const cards = [
+    { id: "all", name: "ALL Cards" },
     { id: "temu-card", name: "Temu Card" },
     { id: "jumia-card", name: "Jumia Card" },
     { id: "konga-card", name: "Konga Card" },
