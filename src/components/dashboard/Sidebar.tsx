@@ -6,6 +6,7 @@ import { LogoutModal } from "@/components/modals/LogoutModal";
 import { SupportModal } from "@/components/modals/SupportModal";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import gtcoLogo from "@/assets/gtco-logo.png";
 
 export function Sidebar() {
   const { t } = useTranslation();
@@ -54,8 +55,13 @@ export function Sidebar() {
             ))}
           </nav>
 
-          {/* Bottom Section - Help & Logout */}
-          <div className="border-t border-border px-3 py-4 space-y-1">
+          {/* Bottom Section - GT Logo, Help & Logout */}
+          <div className="border-t border-border px-3 py-4 space-y-3">
+            {/* GT Logo */}
+            <div className="flex justify-center pb-2">
+              <img src={gtcoLogo} alt="GTCO Logo" className="h-10 w-auto" />
+            </div>
+            
             <button
               onClick={() => setShowSupportModal(true)}
               className={cn(

@@ -1,10 +1,8 @@
-import { useState } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopNav } from "@/components/dashboard/TopNav";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecentTransactions } from "@/components/dashboard/RecentTransactions";
-import gtcoLogo from "@/assets/gtco-logo.png";
 
 const Home = () => {
   return (
@@ -17,11 +15,6 @@ const Home = () => {
         <TopNav />
 
         <main className="p-6 space-y-8">
-          {/* GT Logo */}
-          <div className="flex justify-end">
-            <img src={gtcoLogo} alt="GTCO Logo" className="h-12 w-auto" />
-          </div>
-
           {/* Hero Section */}
           <HeroSection />
 
