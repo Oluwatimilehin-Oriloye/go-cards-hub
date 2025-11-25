@@ -65,7 +65,7 @@ export const Header = ({ onLanguageChange, currentLanguage }: HeaderProps) => {
               className="bg-gradient-orange hover:opacity-90"
               onClick={() => navigate("/login")}
             >
-              Get Started
+              Login
             </Button>
           </div>
 
@@ -113,7 +113,7 @@ export const Header = ({ onLanguageChange, currentLanguage }: HeaderProps) => {
               className="w-full bg-gradient-orange hover:opacity-90"
               onClick={() => navigate("/login")}
             >
-              Get Started
+              Login
             </Button>
           </div>
         )}

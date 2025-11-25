@@ -12,12 +12,11 @@ import {
 } from "@/components/ui/select";
 import { Globe } from "lucide-react";
 import { OTPModal } from "@/components/modals/OTPModal";
-import loginPerson1 from "@/assets/login-person-1.jpg";
 import loginPerson2 from "@/assets/login-person-2.jpg";
 import loginPerson3 from "@/assets/login-person-3.jpg";
 import loginPerson4 from "@/assets/login-person-4.jpg";
 
-const loginImages = [loginPerson1, loginPerson2, loginPerson3, loginPerson4];
+const loginImages = [ loginPerson2, loginPerson3, loginPerson4];
 
 export default function Login() {
   const navigate = useNavigate();

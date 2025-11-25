@@ -8,8 +8,9 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    /* GTBank Color System - Official Brand Colors */
+    --background: 0 0% 100%; /* White #FFFFFF */
+    --foreground: 0 0% 0%; /* Black #000000 */
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
@@ -17,73 +18,101 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
 
-    /* GTBank Orange Primary */
-    --primary: 18 94% 54%;
+    /* GTBank Orange #F15A22 */
+    --primary: 17 90% 54%;
     --primary-foreground: 0 0% 100%;
-    
-    --primary-light: 18 94% 64%;
-    --primary-dark: 18 94% 44%;
 
+    /* Light Gray #F5F5F5 for placeholders */
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 0%;
 
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 18 94% 54%;
+    --accent: 17 90% 54%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 18 94% 54%;
+    /* Borders */
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 17 90% 54%;
+
+    /* Success colors */
+    --success: 123 46% 34%;
+    --success-foreground: 0 0% 100%;
+    --success-bg: 123 41% 92%;
+
+    /* Dark orange for hover states #E65100 */
+    --orange-dark: 17 100% 45%;
+
+    /* Card placeholder gray */
+    --card-placeholder: 0 0% 96%;
 
     --radius: 0.75rem;
 
-    /* Gradients */
-    --gradient-orange: linear-gradient(135deg, hsl(18 94% 54%), hsl(18 94% 64%));
-    --gradient-orange-dark: linear-gradient(135deg, hsl(18 94% 44%), hsl(18 94% 54%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
+    --sidebar-background: 0 0% 98%;
 
-    /* Shadows */
-    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.06);
-    --shadow-card-hover: 0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 10px 10px -5px hsl(0 0% 0% / 0.04);
-    --shadow-orange-glow: 0 10px 40px -10px hsl(18 94% 54% / 0.4);
+    --sidebar-foreground: 240 5.3% 26.1%;
 
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 18 94% 54%;
+    --primary: 23 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 18 94% 54%;
+    --accent: 23 100% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 18 94% 54%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 23 100% 50%;
+
+    --success: 123 46% 40%;
+    --success-foreground: 0 0% 100%;
+    --success-bg: 123 46% 15%;
+
+    --orange-dark: 23 100% 40%;
+
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 23 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 23 100% 50%;
   }
 }
 
@@ -95,4 +124,25 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Soft subtle card gradient */
+.bg-gradient-subtle {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.02)
+  );
+}
+
+/* Orange gradient for CTA */
+.bg-gradient-orange {
+  background: linear-gradient(
+    135deg,
+    #ff7b00,
+    #ff5500
+  );
+}
+.group-hover\:bg-gradient-orange:hover {
+  background: linear-gradient(135deg, #ff7b00, #ff5500);
 }
