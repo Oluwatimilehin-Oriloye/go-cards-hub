@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp } from "lucide-react";
+import { TransactionDetailsModal } from "@/components/transactions/TransactionDetailsModal";
 
 interface CardTransactionsProps {
   selectedCardId: string;
@@ -9,30 +11,50 @@ interface CardTransactionsProps {
 
 // Mock transaction data per card
 const transactionsByCard: Record<string, Array<{
+  id: string;
   date: string;
-  merchant: string;
-  amount: string;
-  status: "Completed" | "Pending";
+  time: string;
+  merchantName: string;
+  amount: number;
+  type: "inflow" | "outflow";
+  status: "completed" | "pending" | "failed";
+  cardName: string;
+  cardLastFour: string;
+  referenceNumber: string;
+  description: string;
 }>> = {
   "temu-card": [
-    { date: "Nov 15, 2025", merchant: "Temu Online Store", amount: "₦12,450.00", status: "Completed" },
-    { date: "Nov 14, 2025", merchant: "Temu Marketplace", amount: "₦8,200.50", status: "Completed" },
-    { date: "Nov 12, 2025", merchant: "Temu Shop", amount: "₦5,890.00", status: "Pending" },
+    { id: "TXN123456789", date: "Nov 15, 2025", time: "10:23 AM", merchantName: "Temu Online Store", amount: 12450, type: "outflow", status: "completed", cardName: "Temu Card", cardLastFour: "6762", referenceNumber: "TXN123456789", description: "Purchase from Temu Online Store" },
+    { id: "TXN123456790", date: "Nov 14, 2025", time: "02:15 PM", merchantName: "Temu Marketplace", amount: 8200.50, type: "outflow", status: "completed", cardName: "Temu Card", cardLastFour: "6762", referenceNumber: "TXN123456790", description: "Purchase from Temu Marketplace" },
+    { id: "TXN123456791", date: "Nov 12, 2025", time: "09:45 AM", merchantName: "Temu Shop", amount: 5890, type: "outflow", status: "pending", cardName: "Temu Card", cardLastFour: "6762", referenceNumber: "TXN123456791", description: "Purchase from Temu Shop" },
   ],
   "jumia-card": [
-    { date: "Nov 15, 2025", merchant: "Jumia Electronics", amount: "₦45,000.00", status: "Completed" },
-    { date: "Nov 13, 2025", merchant: "Jumia Fashion", amount: "₦12,500.00", status: "Completed" },
+    { id: "TXN123456792", date: "Nov 15, 2025", time: "11:30 AM", merchantName: "Jumia Electronics", amount: 45000, type: "outflow", status: "completed", cardName: "Jumia Card", cardLastFour: "8923", referenceNumber: "TXN123456792", description: "Purchase from Jumia Electronics" },
+    { id: "TXN123456793", date: "Nov 13, 2025", time: "03:20 PM", merchantName: "Jumia Fashion", amount: 12500, type: "outflow", status: "completed", cardName: "Jumia Card", cardLastFour: "8923", referenceNumber: "TXN123456793", description: "Purchase from Jumia Fashion" },
   ],
   "konga-card": [
-    { date: "Nov 14, 2025", merchant: "Konga Supermarket", amount: "₦18,750.00", status: "Completed" },
-    { date: "Nov 11, 2025", merchant: "Konga Mall", amount: "₦9,250.00", status: "Pending" },
+    { id: "TXN123456794", date: "Nov 14, 2025", time: "01:10 PM", merchantName: "Konga Supermarket", amount: 18750, type: "outflow", status: "completed", cardName: "Konga Card", cardLastFour: "3456", referenceNumber: "TXN123456794", description: "Purchase from Konga Supermarket" },
+    { id: "TXN123456795", date: "Nov 11, 2025", time: "04:55 PM", merchantName: "Konga Mall", amount: 9250, type: "outflow", status: "pending", cardName: "Konga Card", cardLastFour: "3456", referenceNumber: "TXN123456795", description: "Purchase from Konga Mall" },
   ],
 };
 
 export function CardTransactions({ selectedCardId }: CardTransactionsProps) {
   const transactions = transactionsByCard[selectedCardId] || [];
+  const [selectedTransaction, setSelectedTransaction] = useState<typeof transactions[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleTransactionClick = (transaction: typeof transactions[0]) => {
+    setSelectedTransaction(transaction);
+    setIsModalOpen(true);
+  };
 
   return (
+    <>
+      <TransactionDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        transaction={selectedTransaction}
+      />
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-foreground">Recent transactions</h2>
@@ -62,21 +84,25 @@ export function CardTransactions({ selectedCardId }: CardTransactionsProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map((transaction, index) => (
-                  <TableRow key={index} className="hover:bg-muted/50 cursor-pointer">
+                {transactions.map((transaction) => (
+                  <TableRow 
+                    key={transaction.id} 
+                    className="hover:bg-muted/50 cursor-pointer"
+                    onClick={() => handleTransactionClick(transaction)}
+                  >
                     <TableCell className="text-foreground">{transaction.date}</TableCell>
-                    <TableCell className="text-foreground">{transaction.merchant}</TableCell>
-                    <TableCell className="text-foreground font-medium">{transaction.amount}</TableCell>
+                    <TableCell className="text-foreground">{transaction.merchantName}</TableCell>
+                    <TableCell className="text-foreground font-medium">₦{transaction.amount.toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge 
                         variant="outline" 
                         className={
-                          transaction.status === "Completed"
+                          transaction.status === "completed"
                             ? "bg-success/10 text-success border-success/20"
                             : "bg-orange-500/10 text-orange-500 border-orange-500/20"
                         }
                       >
-                        {transaction.status}
+                        {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -87,30 +113,35 @@ export function CardTransactions({ selectedCardId }: CardTransactionsProps) {
 
           {/* Mobile Cards */}
           <div className="md:hidden space-y-3">
-            {transactions.map((transaction, index) => (
-              <Card key={index} className="p-4 hover:bg-muted/50 cursor-pointer transition-colors">
+            {transactions.map((transaction) => (
+              <Card 
+                key={transaction.id} 
+                className="p-4 hover:bg-muted/50 cursor-pointer transition-colors"
+                onClick={() => handleTransactionClick(transaction)}
+              >
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <p className="font-medium text-foreground">{transaction.merchant}</p>
+                    <p className="font-medium text-foreground">{transaction.merchantName}</p>
                     <p className="text-sm text-muted-foreground">{transaction.date}</p>
                   </div>
                   <Badge 
                     variant="outline" 
                     className={
-                      transaction.status === "Completed"
+                      transaction.status === "completed"
                         ? "bg-success/10 text-success border-success/20"
                         : "bg-orange-500/10 text-orange-500 border-orange-500/20"
                     }
                   >
-                    {transaction.status}
+                    {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
                   </Badge>
                 </div>
-                <p className="text-lg font-semibold text-foreground">{transaction.amount}</p>
+                <p className="text-lg font-semibold text-foreground">₦{transaction.amount.toLocaleString()}</p>
               </Card>
             ))}
           </div>
         </>
       )}
     </Card>
+    </>
   );
 }

@@ -8,9 +8,9 @@ interface VirtualCardCarouselProps {
 }
 
 const cards = [
-  { id: "temu-card", name: "Temu Card", balance: "₦50.00", lastFour: "6762" },
-  { id: "jumia-card", name: "Jumia Card", balance: "₦150.00", lastFour: "8923" },
-  { id: "konga-card", name: "Konga Card", balance: "₦75.00", lastFour: "3456" },
+  { id: "temu-card", name: "Temu Card", balance: "₦50.00", lastFour: "6762", cardType: "Mastercard" as const },
+  { id: "jumia-card", name: "Jumia Card", balance: "₦150.00", lastFour: "8923", cardType: "Verve" as const },
+  { id: "konga-card", name: "Konga Card", balance: "₦75.00", lastFour: "3456", cardType: "Visa" as const },
 ];
 
 export function VirtualCardCarousel({ selectedCardId, onCardSelect }: VirtualCardCarouselProps) {
@@ -31,6 +31,7 @@ export function VirtualCardCarousel({ selectedCardId, onCardSelect }: VirtualCar
                   name={card.name}
                   balance={card.balance}
                   lastFour={card.lastFour}
+                  cardType={card.cardType}
                   isSelected={selectedCardId === card.id}
                 />
               </div>

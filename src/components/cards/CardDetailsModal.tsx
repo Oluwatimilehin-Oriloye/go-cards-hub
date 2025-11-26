@@ -38,6 +38,8 @@ export function CardDetailsModal({
   const cvv = "123";
   const expiryDate = "12/26";
   const lastFour = "9876";
+  const cardType = cardId === "temu-card" ? "Mastercard" : cardId === "jumia-card" ? "Verve" : "Visa";
+  const holderName = "Timi Adebayo";
 
   const handleCopyCardNumber = () => {
     navigator.clipboard.writeText(fullCardNumber.replace(/\s/g, ""));
@@ -51,20 +53,43 @@ export function CardDetailsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Card Details</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Card Display */}
-          <div className="flex justify-center">
+          <div className="flex justify-center -mx-6">
             <VirtualCardDisplay
               name={cardName}
               balance={`₦${balance.toLocaleString()}`}
               lastFour={lastFour}
+              cardType={cardType as "Mastercard" | "Verve" | "Visa"}
             />
           </div>
+
+          {/* Basic Info */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Card Holder</span>
+              <span className="font-medium">{holderName}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">GO Card Name</span>
+              <span className="font-medium">{cardName}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Card Type</span>
+              <span className="font-medium">{cardType}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Balance</span>
+              <span className="font-bold text-primary">₦{balance.toLocaleString()}</span>
+            </div>
+          </div>
+
+          <Separator />
 
           {/* Card Information */}
           <div className="space-y-4">
