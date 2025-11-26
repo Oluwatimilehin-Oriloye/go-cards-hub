@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createVirtualCard } from "@/services/cardService";
 
 interface CreateVirtualCardModalProps {
   isOpen: boolean;
@@ -20,17 +21,28 @@ export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxC
   const isLimitReached = currentCardCount >= maxCards;
   const cardCreationFee = 2000;
 
-  const handleCreateCard = () => {
-    if (isLimitReached || !cardName.trim()) {
-      return;
-    }
-    
+  //  THE ONLY PART WE UPDATED — this now calls your API correctly
+  const handleCreateCard = async () => {
+    if (isLimitReached || !cardName.trim()) return;
+
     setStep("processing");
-    
-    // Simulate API call
-    setTimeout(() => {
-      setStep("success");
-    }, 2000);
+
+    try {
+      await createVirtualCard({ cardName });   // ← CALL BACKEND
+
+      setStep("success");                       // ← MOVE TO SUCCESS SCREEN
+
+    } catch (err: any) {
+      console.error("Card creation failed:", err);
+
+      alert(
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Failed to create virtual card"
+      );
+
+      setStep("create"); // Reset UI if API fails
+    }
   };
 
   const handleSeeCard = () => {
@@ -54,10 +66,14 @@ export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxC
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
+        
+        {/* CREATE STEP */}
         {step === "create" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">Create Virtual Card — ₦{cardCreationFee.toLocaleString()}</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                Create Virtual Card — ₦{cardCreationFee.toLocaleString()}
+              </DialogTitle>
               <DialogDescription className="text-muted-foreground space-y-2">
                 <p>Creating a virtual card costs ₦{cardCreationFee.toLocaleString()}.</p>
                 <p>You can create up to {maxCards} virtual cards maximum.</p>
@@ -80,19 +96,18 @@ export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxC
                   placeholder="e.g., Jumia Card, Netflix Card"
                   value={cardName}
                   onChange={(e) => setCardName(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
                   maxLength={30}
                 />
               </div>
             </div>
 
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="outline" onClick={handleClose}>
-                Cancel
-              </Button>
+              <Button variant="outline" onClick={handleClose}>Cancel</Button>
+
               {!isLimitReached && (
-                <Button 
-                  onClick={handleCreateCard} 
+                <Button
+                  onClick={handleCreateCard}
                   className="bg-primary hover:bg-primary/90"
                   disabled={!cardName.trim()}
                 >
@@ -103,6 +118,7 @@ export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxC
           </>
         )}
 
+        {/* PROCESSING STEP */}
         {step === "processing" && (
           <div className="py-8 flex flex-col items-center gap-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -110,6 +126,7 @@ export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxC
           </div>
         )}
 
+        {/* SUCCESS STEP */}
         {step === "success" && (
           <>
             <DialogHeader>
@@ -122,12 +139,16 @@ export function CreateVirtualCardModal({ isOpen, onClose, currentCardCount, maxC
             </DialogHeader>
 
             <DialogFooter>
-              <Button onClick={handleSeeCard} className="w-full bg-primary hover:bg-primary/90">
+              <Button 
+                onClick={handleSeeCard} 
+                className="w-full bg-primary hover:bg-primary/90"
+              >
                 See Card
               </Button>
             </DialogFooter>
           </>
         )}
+
       </DialogContent>
     </Dialog>
   );
