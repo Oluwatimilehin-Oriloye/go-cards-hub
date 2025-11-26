@@ -6,6 +6,7 @@ import { TransactionDetailsModal } from "@/components/transactions/TransactionDe
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const mockTransactions = [
   {
@@ -28,6 +29,14 @@ const mockTransactions = [
 export default function Transactions() {
   const [selectedTransaction, setSelectedTransaction] = useState<typeof mockTransactions[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [cardFilter, setCardFilter] = useState<string>("all");
+
+  const filteredTransactions = mockTransactions.filter((txn) => {
+    const matchesType = typeFilter === "all" || txn.type === typeFilter;
+    const matchesCard = cardFilter === "all" || txn.cardName === cardFilter;
+    return matchesType && matchesCard;
+  });
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -36,6 +45,33 @@ export default function Transactions() {
         <TopNav />
         <main className="p-6">
           <h1 className="text-2xl font-bold mb-6">Transactions</h1>
+          
+          {/* Filters */}
+          <div className="flex gap-4 mb-6">
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Transactions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Transactions</SelectItem>
+                <SelectItem value="inflow">Inflow</SelectItem>
+                <SelectItem value="outflow">Outflow</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={cardFilter} onValueChange={setCardFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Cards" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cards</SelectItem>
+                <SelectItem value="Temu Card">Temu Card</SelectItem>
+                <SelectItem value="Jumia Card">Jumia Card</SelectItem>
+                <SelectItem value="Konga Card">Konga Card</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <Card className="p-6">
             <Table>
               <TableHeader>
@@ -48,7 +84,7 @@ export default function Transactions() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockTransactions.map((txn) => (
+                {filteredTransactions.map((txn) => (
                   <TableRow 
                     key={txn.id} 
                     className="cursor-pointer hover:bg-muted/50"
