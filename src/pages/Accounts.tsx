@@ -42,7 +42,7 @@
 //   );
 // }
 
-import { useState, useEffect } from "react"; // 🚨 Added useEffect for data fetching
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopNav } from "@/components/dashboard/TopNav";
 import { CardBalanceTabs } from "@/components/accounts/CardBalanceTabs";
@@ -50,7 +50,9 @@ import { AccountBalanceCard } from "@/components/accounts/AccountBalanceCard";
 import { AccountActions } from "@/components/accounts/AccountActions";
 import { PhysicalCardBanner } from "@/components/accounts/PhysicalCardBanner";
 import { CardTransactions } from "@/components/accounts/CardTransactions";
-// 🚨 NEW IMPORTS for data fetching
+import { CreateVirtualCardModal } from "@/components/modals/CreateVirtualCardModal";
+import { FundCardModal } from "@/components/modals/FundCardModal";
+import { RequestPhysicalCardModal } from "@/components/modals/RequestPhysicalCardModal";
 import {
   getAccountSummary,
   AccountSummaryData,
@@ -60,14 +62,12 @@ import { Loader2, AlertCircle } from "lucide-react";
 
 export default function Accounts() {
   const [activeCard, setActiveCard] = useState("account-balance");
-  // 🚨 NEW STATE: To hold the fetched account summary data
-  const [summaryData, setSummaryData] = useState<AccountSummaryData | null>(
-    null
-  );
-  // 🚨 NEW STATE: To track loading status
+  const [summaryData, setSummaryData] = useState<AccountSummaryData | null>(null);
   const [loading, setLoading] = useState(true);
-  // 🚨 NEW STATE: To handle errors during fetching
   const [error, setError] = useState<string | null>(null);
+  const [showCreateCardModal, setShowCreateCardModal] = useState(false);
+  const [showFundCardModal, setShowFundCardModal] = useState(false);
+  const [showRequestPhysicalCardModal, setShowRequestPhysicalCardModal] = useState(false);
 
   // 🚨 Data Fetching Logic
   useEffect(() => {
@@ -136,11 +136,14 @@ export default function Accounts() {
                   activeCard={activeCard}
                   summaryData={summaryData}
                 />
-                <AccountActions />
+                <AccountActions 
+                  onAddNewCard={() => setShowCreateCardModal(true)}
+                  onFundCard={() => setShowFundCardModal(true)}
+                />
               </div>
 
               {/* Physical Card Banner */}
-              <PhysicalCardBanner />
+              <PhysicalCardBanner onRequestCard={() => setShowRequestPhysicalCardModal(true)} />
 
               {/* Recent Transactions */}
               {/* NOTE: If CardTransactions uses the activeCard, it's fine. 
@@ -150,6 +153,22 @@ export default function Accounts() {
           )}
         </main>
       </div>
+
+      {/* Modals */}
+      <CreateVirtualCardModal
+        isOpen={showCreateCardModal}
+        onClose={() => setShowCreateCardModal(false)}
+        currentCardCount={summaryData?.cardBalances.length || 0}
+        maxCards={3}
+      />
+      <FundCardModal
+        isOpen={showFundCardModal}
+        onClose={() => setShowFundCardModal(false)}
+      />
+      <RequestPhysicalCardModal
+        isOpen={showRequestPhysicalCardModal}
+        onClose={() => setShowRequestPhysicalCardModal(false)}
+      />
     </div>
   );
 }

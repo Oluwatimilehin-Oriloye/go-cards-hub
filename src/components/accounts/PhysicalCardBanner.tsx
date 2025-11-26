@@ -2,7 +2,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreditCard, ArrowRight } from "lucide-react";
 
-export function PhysicalCardBanner() {
+interface PhysicalCardBannerProps {
+  onRequestCard: () => void;
+}
+
+export function PhysicalCardBanner({ onRequestCard }: PhysicalCardBannerProps) {
   return (
     <Card className="overflow-hidden border-border shadow-sm">
       <div className="flex flex-col md:flex-row items-center justify-between p-8 gap-6">
@@ -11,7 +15,10 @@ export function PhysicalCardBanner() {
           <p className="text-muted-foreground max-w-xl">
             Order a secure GTCO physical card and get it delivered to you.
           </p>
-          <Button className="bg-primary text-primary-foreground hover:bg-orange-dark">
+          <Button 
+            onClick={onRequestCard}
+            className="bg-primary text-primary-foreground hover:bg-orange-dark"
+          >
             Request Physical Card
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

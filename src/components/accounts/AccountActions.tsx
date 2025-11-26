@@ -1,10 +1,25 @@
 import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
+import { Copy, Plus } from "lucide-react";
 
-export function AccountActions() {
+interface AccountActionsProps {
+  onAddNewCard: () => void;
+  onFundCard: () => void;
+}
+
+export function AccountActions({ onAddNewCard, onFundCard }: AccountActionsProps) {
   return (
     <div className="flex flex-wrap gap-4">
       <Button 
+        onClick={onAddNewCard}
+        className="bg-primary text-primary-foreground hover:bg-orange-dark px-6"
+        size="lg"
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add New Card
+      </Button>
+
+      <Button 
+        onClick={onFundCard}
         className="bg-primary text-primary-foreground hover:bg-orange-dark px-6"
         size="lg"
       >
