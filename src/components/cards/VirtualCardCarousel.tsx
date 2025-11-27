@@ -5,6 +5,7 @@ import { CreateCardButton } from "./CreateCardButton";
 interface VirtualCardCarouselProps {
   selectedCardId: string;
   onCardSelect: (cardId: string) => void;
+  frozenCards?: Record<string, boolean>;
 }
 
 const cards = [
@@ -13,7 +14,7 @@ const cards = [
   { id: "konga-card", name: "Konga Card", balance: "₦75.00", lastFour: "3456", cardType: "Visa" as const },
 ];
 
-export function VirtualCardCarousel({ selectedCardId, onCardSelect }: VirtualCardCarouselProps) {
+export function VirtualCardCarousel({ selectedCardId, onCardSelect, frozenCards = {} }: VirtualCardCarouselProps) {
   const MAX_CARDS = 3;
   const currentCardCount = cards.length;
 
@@ -33,6 +34,7 @@ export function VirtualCardCarousel({ selectedCardId, onCardSelect }: VirtualCar
                   lastFour={card.lastFour}
                   cardType={card.cardType}
                   isSelected={selectedCardId === card.id}
+                  isFrozen={frozenCards[card.id] || false}
                 />
               </div>
             </CarouselItem>

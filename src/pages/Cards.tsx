@@ -7,10 +7,12 @@ import { CardTransactions } from "@/components/cards/CardTransactions";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CreateVirtualCardModal } from "@/components/modals/CreateVirtualCardModal";
+import { toast } from "sonner";
 
 export default function Cards() {
   const [selectedCardId, setSelectedCardId] = useState("temu-card");
   const [showCreateCardModal, setShowCreateCardModal] = useState(false);
+  const [frozenCards, setFrozenCards] = useState<Record<string, boolean>>({});
 
   // Mock cards data
   const cards = [
@@ -22,6 +24,24 @@ export default function Cards() {
   const selectedCard = cards.find(card => card.id === selectedCardId) || cards[0];
   const MAX_CARDS = 3;
   const currentCardCount = cards.length;
+
+  const handleFreeze = (duration: string) => {
+    setFrozenCards(prev => ({ ...prev, [selectedCardId]: true }));
+  };
+
+  const handleUnfreeze = () => {
+    setFrozenCards(prev => {
+      const updated = { ...prev };
+      delete updated[selectedCardId];
+      return updated;
+    });
+    toast.success(`${selectedCard.name} unfrozen successfully`);
+  };
+
+  const handleDelete = (reason: string) => {
+    console.log("Delete reason:", reason);
+    // Handle card deletion logic
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -47,6 +67,7 @@ export default function Cards() {
           <VirtualCardCarousel 
             selectedCardId={selectedCardId}
             onCardSelect={setSelectedCardId}
+            frozenCards={frozenCards}
           />
 
           {/* Action Buttons */}
@@ -54,6 +75,10 @@ export default function Cards() {
             selectedCardId={selectedCardId}
             cardName={selectedCard.name}
             balance={selectedCard.balance}
+            isFrozen={frozenCards[selectedCardId] || false}
+            onFreeze={handleFreeze}
+            onUnfreeze={handleUnfreeze}
+            onDelete={handleDelete}
           />
 
           {/* Recent Transactions */}
