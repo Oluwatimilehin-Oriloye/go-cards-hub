@@ -1,7 +1,7 @@
 // src/services/accountService.ts (New or Updated File)
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3000"; // Adjust prefix if needed
+const API_BASE_URL = "http://localhost:3000";
 
 // 🚨 NEW INTERFACES to match the updated NestJS response
 export interface CardBalance {
