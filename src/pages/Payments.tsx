@@ -22,10 +22,10 @@ const Payments = () => {
           </div>
 
           {/* Platform Logos */}
-          <PlatformLogos 
+          {/* <PlatformLogos 
             cardName="All Cards" 
             linkedPlatforms={["Jumia", "Konga", "Temu"]} 
-          />
+          /> */}
 
           {/* Linked Platforms Section */}
           <LinkedPlatformsGrid />
