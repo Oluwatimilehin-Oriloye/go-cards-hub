@@ -8,13 +8,17 @@ interface VirtualCardDisplayProps {
   lastFour: string;
   isSelected?: boolean;
   cardType?: "Mastercard" | "Verve" | "Visa";
+  isFrozen?: boolean;
 }
 
-export function VirtualCardDisplay({ name, balance, lastFour, isSelected, cardType = "Mastercard" }: VirtualCardDisplayProps) {
+export function VirtualCardDisplay({ name, balance, lastFour, isSelected, cardType = "Mastercard", isFrozen = false }: VirtualCardDisplayProps) {
   return (
     <Card className={`
       relative overflow-hidden w-80 h-52 p-6 
-      bg-gradient-to-br from-primary via-primary/90 to-primary-dark
+      ${isFrozen 
+        ? 'bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600' 
+        : 'bg-gradient-to-br from-primary via-primary/90 to-primary-dark'
+      }
       text-white
       transition-all duration-300 rounded-2xl
       ${isSelected ? 'shadow-2xl scale-105' : 'shadow-lg'}
@@ -24,6 +28,18 @@ export function VirtualCardDisplay({ name, balance, lastFour, isSelected, cardTy
         <div className="absolute top-10 -right-10 w-40 h-40 rounded-full bg-white blur-3xl" />
         <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-white blur-3xl" />
       </div>
+
+      {/* Frozen Ice Effect Overlay */}
+      {isFrozen && (
+        <div className="absolute inset-0 bg-blue-900/20 backdrop-blur-[2px] z-10 flex items-center justify-center">
+          <div className="bg-blue-500/90 backdrop-blur-md px-4 py-2 rounded-full border-2 border-white/50 shadow-lg">
+            <p className="text-white font-bold text-sm flex items-center gap-2">
+              <span className="text-lg">❄️</span>
+              FROZEN
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Card Content */}
       <div className="relative h-full flex flex-col justify-between">

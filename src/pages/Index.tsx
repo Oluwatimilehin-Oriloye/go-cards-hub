@@ -27,7 +27,7 @@ const Index = () => {
 
           {/* Stacked Cards Carousel */}
           <StackedCardsCarousel 
-            currentCardCount={currentCardCount}
+            cards={[]}
             maxCards={MAX_CARDS}
             onCreateCard={() => setShowCreateCardModal(true)}
           />
