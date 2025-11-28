@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopNav } from "@/components/dashboard/TopNav";
 import { LinkedPlatformsGrid } from "@/components/payments/LinkedPlatformsGrid";
+import { PlatformLogos } from "@/components/payments/PlatformLogos";
 
 const Payments = () => {
   return (
@@ -19,6 +20,12 @@ const Payments = () => {
               Manage your virtual cards and linked platforms
             </p>
           </div>
+
+          {/* Platform Logos */}
+          {/* <PlatformLogos 
+            cardName="All Cards" 
+            linkedPlatforms={["Jumia", "Konga", "Temu"]} 
+          /> */}
 
           {/* Linked Platforms Section */}
           <LinkedPlatformsGrid />

@@ -10,17 +10,29 @@ interface CardActionsProps {
   selectedCardId: string;
   cardName: string;
   balance: number;
-  isFrozen?: boolean;
+  status: string; // 'active', 'frozen', 'blocked', 'deleted'
   onFreeze: (duration: string) => void;
   onUnfreeze: () => void;
   onDelete: (reason: string) => void;
+  onRefresh: () => void;
 }
 
-export function CardActions({ selectedCardId, cardName, balance, isFrozen = false, onFreeze, onUnfreeze, onDelete }: CardActionsProps) {
+export function CardActions({
+  selectedCardId,
+  cardName,
+  balance,
+  status,
+  onFreeze,
+  onUnfreeze,
+  onDelete,
+  onRefresh,
+}: CardActionsProps) {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [fundCardModalOpen, setFundCardModalOpen] = useState(false);
   const [freezeModalOpen, setFreezeModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const isFrozen = status === "frozen";
 
   const handleDetails = () => {
     setDetailsModalOpen(true);
@@ -55,7 +67,9 @@ export function CardActions({ selectedCardId, cardName, balance, isFrozen = fals
       <FundCardModal
         isOpen={fundCardModalOpen}
         onClose={() => setFundCardModalOpen(false)}
+        cardId={selectedCardId}
         cardName={cardName}
+        onFundSuccess={onRefresh}
       />
 
       <FreezeCardModal
@@ -75,59 +89,61 @@ export function CardActions({ selectedCardId, cardName, balance, isFrozen = fals
 
       <div className="flex justify-center gap-8">
         {/* Details */}
-      <div className="flex flex-col items-center gap-2">
-        <Button
-          onClick={handleDetails}
-          size="icon"
-          className="h-14 w-14 rounded-full bg-foreground text-background hover:bg-foreground/90"
-        >
-          <Info className="h-6 w-6" />
-        </Button>
-        <span className="text-sm font-medium text-foreground">Details</span>
-      </div>
+        <div className="flex flex-col items-center gap-2">
+          <Button
+            onClick={handleDetails}
+            size="icon"
+            className="h-14 w-14 rounded-full bg-foreground text-background hover:bg-foreground/90"
+          >
+            <Info className="h-6 w-6" />
+          </Button>
+          <span className="text-sm font-medium text-foreground">Details</span>
+        </div>
 
-      {/* Add Money */}
-      <div className="flex flex-col items-center gap-2">
-        <Button
-          onClick={handleAddMoney}
-          size="icon"
-          variant="outline"
-          className="h-14 w-14 rounded-full border-2"
-        >
-          <Plus className="h-6 w-6" />
-        </Button>
-        <span className="text-sm font-medium text-foreground">Add Money</span>
-      </div>
+        {/* Add Money */}
+        <div className="flex flex-col items-center gap-2">
+          <Button
+            onClick={handleAddMoney}
+            size="icon"
+            variant="outline"
+            className="h-14 w-14 rounded-full border-2"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+          <span className="text-sm font-medium text-foreground">Add Money</span>
+        </div>
 
-      {/* Freeze/Unfreeze */}
-      <div className="flex flex-col items-center gap-2">
-        <Button
-          onClick={handleFreezeClick}
-          size="icon"
-          variant="outline"
-          className={`h-14 w-14 rounded-full border-2 ${
-            isFrozen ? 'bg-blue-500 text-white hover:bg-blue-600 border-blue-500' : ''
-          }`}
-        >
-          <Snowflake className="h-6 w-6" />
-        </Button>
-        <span className="text-sm font-medium text-foreground">
-          {isFrozen ? 'Unfreeze' : 'Freeze'}
-        </span>
-      </div>
+        {/* Freeze/Unfreeze */}
+        <div className="flex flex-col items-center gap-2">
+          <Button
+            onClick={handleFreezeClick}
+            size="icon"
+            variant="outline"
+            className={`h-14 w-14 rounded-full border-2 ${
+              isFrozen
+                ? "bg-blue-500 text-white hover:bg-blue-600 border-blue-500"
+                : ""
+            }`}
+          >
+            <Snowflake className="h-6 w-6" />
+          </Button>
+          <span className="text-sm font-medium text-foreground">
+            {isFrozen ? "Unfreeze" : "Freeze"}
+          </span>
+        </div>
 
-      {/* Delete */}
-      <div className="flex flex-col items-center gap-2">
-        <Button
-          onClick={handleDeleteClick}
-          size="icon"
-          variant="outline"
-          className="h-14 w-14 rounded-full border-2 hover:border-destructive hover:text-destructive"
-        >
-          <Trash2 className="h-6 w-6" />
-        </Button>
-        <span className="text-sm font-medium text-foreground">Delete</span>
-      </div>
+        {/* Delete */}
+        <div className="flex flex-col items-center gap-2">
+          <Button
+            onClick={handleDeleteClick}
+            size="icon"
+            variant="outline"
+            className="h-14 w-14 rounded-full border-2 hover:border-destructive hover:text-destructive"
+          >
+            <Trash2 className="h-6 w-6" />
+          </Button>
+          <span className="text-sm font-medium text-foreground">Delete</span>
+        </div>
       </div>
     </>
   );

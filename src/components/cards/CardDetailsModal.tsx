@@ -1,5 +1,5 @@
 import { Copy, Eye, EyeOff, Settings } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { getCardDetails, CardDetails } from "@/services/cardService";
 
 interface CardDetailsModalProps {
   open: boolean;
@@ -31,18 +32,57 @@ export function CardDetailsModal({
   const [showFullNumber, setShowFullNumber] = useState(false);
   const [showCVV, setShowCVV] = useState(false);
   const [onlinePaymentsEnabled, setOnlinePaymentsEnabled] = useState(true);
-  const [internationalPaymentsEnabled, setInternationalPaymentsEnabled] = useState(false);
+  const [internationalPaymentsEnabled, setInternationalPaymentsEnabled] =
+    useState(false);
+  const [cardDetails, setCardDetails] = useState<CardDetails | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Mock card data
-  const fullCardNumber = "4532 1234 5678 9876";
-  const cvv = "123";
-  const expiryDate = "12/26";
-  const lastFour = "9876";
-  const cardType = cardId === "temu-card" ? "Mastercard" : cardId === "jumia-card" ? "Verve" : "Visa";
-  const holderName = "Timi Adebayo";
+  // Fetch full card details when modal opens
+  useEffect(() => {
+    if (open && cardId) {
+      fetchCardDetails();
+    }
+  }, [open, cardId]);
+
+  const fetchCardDetails = async () => {
+    try {
+      setLoading(true);
+      const details = await getCardDetails(cardId);
+      setCardDetails(details);
+    } catch (error) {
+      console.error("Failed to load card details:", error);
+      toast.error("Failed to load card details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!cardDetails && loading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md">
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading card details...</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!cardDetails) return null;
+
+  const fullCardNumber = cardDetails.cardNumber.replace(
+    /(\d{4})(?=\d)/g,
+    "$1 "
+  );
+  const cvv = cardDetails.cvv;
+  const expiryDate = cardDetails.expiryDate;
+  const lastFour = cardDetails.cardNumber.slice(-4);
+  const cardType = cardDetails.type === "virtual" ? "Visa" : "Mastercard";
+  const holderName = "Timi Adebayo"; // This should come from user info in production
 
   const handleCopyCardNumber = () => {
-    navigator.clipboard.writeText(fullCardNumber.replace(/\s/g, ""));
+    navigator.clipboard.writeText(cardDetails.cardNumber);
     toast.success("Card number copied to clipboard");
   };
 
@@ -76,7 +116,9 @@ export function CardDetailsModal({
               <span className="font-medium">{holderName}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">GO Card Name</span>
+              <span className="text-sm text-muted-foreground">
+                GO Card Name
+              </span>
               <span className="font-medium">{cardName}</span>
             </div>
             <div className="flex justify-between items-center">
@@ -85,7 +127,9 @@ export function CardDetailsModal({
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Balance</span>
-              <span className="font-bold text-primary">₦{balance.toLocaleString()}</span>
+              <span className="font-bold text-primary">
+                ₦{balance.toLocaleString()}
+              </span>
             </div>
           </div>
 
@@ -100,7 +144,9 @@ export function CardDetailsModal({
               </Label>
               <div className="flex items-center gap-2">
                 <div className="flex-1 font-mono text-lg">
-                  {showFullNumber ? fullCardNumber : `•••• •••• •••• ${lastFour}`}
+                  {showFullNumber
+                    ? fullCardNumber
+                    : `•••• •••• •••• ${lastFour}`}
                 </div>
                 <Button
                   size="icon"
@@ -144,11 +190,7 @@ export function CardDetailsModal({
                       <Eye className="h-4 w-4" />
                     )}
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={handleCopyCVV}
-                  >
+                  <Button size="icon" variant="ghost" onClick={handleCopyCVV}>
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
@@ -192,7 +234,10 @@ export function CardDetailsModal({
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="international-payments" className="font-medium">
+                  <Label
+                    htmlFor="international-payments"
+                    className="font-medium"
+                  >
                     International Payments
                   </Label>
                   <p className="text-sm text-muted-foreground">

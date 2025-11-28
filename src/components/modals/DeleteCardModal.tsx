@@ -1,4 +1,11 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +21,13 @@ interface DeleteCardModalProps {
   onDelete: (reason: string) => void;
 }
 
-export function DeleteCardModal({ isOpen, onClose, cardName, balance, onDelete }: DeleteCardModalProps) {
+export function DeleteCardModal({
+  isOpen,
+  onClose,
+  cardName,
+  balance,
+  onDelete,
+}: DeleteCardModalProps) {
   const [reason, setReason] = useState("");
 
   const handleDelete = () => {
@@ -48,7 +61,9 @@ export function DeleteCardModal({ isOpen, onClose, cardName, balance, onDelete }
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <div>
-              <DialogTitle className="text-2xl font-bold">Delete Card</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                Delete Card
+              </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 {cardName}
               </DialogDescription>
@@ -65,11 +80,17 @@ export function DeleteCardModal({ isOpen, onClose, cardName, balance, onDelete }
             <ul className="text-sm text-muted-foreground space-y-2">
               <li className="flex gap-2">
                 <span className="text-destructive font-bold">•</span>
-                <span>All remaining funds (₦{balance.toLocaleString()}) will be returned to your main account</span>
+                <span>
+                  All remaining funds (₦{balance.toLocaleString()}) will be
+                  returned to your main account
+                </span>
               </li>
               <li className="flex gap-2">
                 <span className="text-destructive font-bold">•</span>
-                <span>This card will be unlinked from all platforms (Temu, Jumia, etc.)</span>
+                <span>
+                  This card will be unlinked from all platforms (Temu, Jumia,
+                  etc.)
+                </span>
               </li>
               <li className="flex gap-2">
                 <span className="text-destructive font-bold">•</span>
@@ -99,8 +120,8 @@ export function DeleteCardModal({ isOpen, onClose, cardName, balance, onDelete }
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleDelete} 
+          <Button
+            onClick={handleDelete}
             variant="destructive"
             className="bg-destructive hover:bg-destructive/90"
           >
