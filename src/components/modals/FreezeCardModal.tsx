@@ -1,7 +1,20 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Snowflake } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -13,7 +26,12 @@ interface FreezeCardModalProps {
   onFreeze: (duration: string) => void;
 }
 
-export function FreezeCardModal({ isOpen, onClose, cardName, onFreeze }: FreezeCardModalProps) {
+export function FreezeCardModal({
+  isOpen,
+  onClose,
+  cardName,
+  onFreeze,
+}: FreezeCardModalProps) {
   const [duration, setDuration] = useState("");
 
   const handleFreeze = () => {
@@ -47,7 +65,9 @@ export function FreezeCardModal({ isOpen, onClose, cardName, onFreeze }: FreezeC
               <Snowflake className="h-6 w-6 text-blue-500" />
             </div>
             <div>
-              <DialogTitle className="text-2xl font-bold">Freeze Card</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                Freeze Card
+              </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 {cardName}
               </DialogDescription>
@@ -57,7 +77,9 @@ export function FreezeCardModal({ isOpen, onClose, cardName, onFreeze }: FreezeC
 
         <div className="space-y-4 py-4">
           <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-            <p className="text-sm font-medium text-foreground">What happens when you freeze?</p>
+            <p className="text-sm font-medium text-foreground">
+              What happens when you freeze?
+            </p>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• All transactions will be blocked</li>
               <li>• Your funds remain safe in the card</li>
@@ -77,7 +99,9 @@ export function FreezeCardModal({ isOpen, onClose, cardName, onFreeze }: FreezeC
                 <SelectItem value="24 hours">24 hours</SelectItem>
                 <SelectItem value="1 week">1 week</SelectItem>
                 <SelectItem value="1 month">1 month</SelectItem>
-                <SelectItem value="indefinitely">Indefinitely (until I unfreeze)</SelectItem>
+                <SelectItem value="indefinitely">
+                  Indefinitely (until I unfreeze)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -87,7 +111,10 @@ export function FreezeCardModal({ isOpen, onClose, cardName, onFreeze }: FreezeC
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button onClick={handleFreeze} className="bg-blue-500 hover:bg-blue-600">
+          <Button
+            onClick={handleFreeze}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
             <Snowflake className="mr-2 h-4 w-4" />
             Freeze Card
           </Button>
