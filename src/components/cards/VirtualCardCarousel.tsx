@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -15,7 +16,7 @@ interface Card {
   balance: number;
   currency: string;
   type: string;
-  status: string; // 'active', 'frozen', 'blocked', 'deleted'
+  status: string;
 }
 
 interface VirtualCardCarouselProps {
@@ -31,22 +32,38 @@ export function VirtualCardCarousel({
   onCardSelect,
   maxCards,
 }: VirtualCardCarouselProps) {
+  const [api, setApi] = useState<any>(null);
+
+  // Ensure swiping updates the selected card
+  useEffect(() => {
+    if (!api) return;
+
+    const handleSelect = () => {
+      const index = api.selectedScrollSnap();
+      const selected = cards[index];
+      if (selected) onCardSelect(selected.id);
+    };
+
+    api.on("select", handleSelect);
+    handleSelect(); // initialize selection on mount
+
+    return () => api.off("select", handleSelect);
+  }, [api, cards]);
+
   const currentCardCount = cards.length;
 
-  // Determine card type from the type field or default to Mastercard
   const getCardType = (type: string): "Mastercard" | "Verve" | "Visa" => {
-    const normalizedType = type.toLowerCase();
-    if (normalizedType.includes("verve")) return "Verve";
-    if (normalizedType.includes("visa")) return "Visa";
+    const normalized = type.toLowerCase();
+    if (normalized.includes("verve")) return "Verve";
+    if (normalized.includes("visa")) return "Visa";
     return "Mastercard";
   };
 
   return (
     <div className="relative px-12">
-      <Carousel className="w-full max-w-3xl mx-auto">
+      <Carousel className="w-full max-w-3xl mx-auto" setApi={setApi}>
         <CarouselContent>
           {cards.map((card) => {
-            // Extract last 4 digits from card number
             const lastFour = card.cardNumber.replace(/\s/g, "").slice(-4);
             const currencySymbol = card.currency === "NGN" ? "₦" : "$";
             const isFrozen = card.status === "frozen";
@@ -70,7 +87,6 @@ export function VirtualCardCarousel({
             );
           })}
 
-          {/* Show create card button if under limit */}
           {currentCardCount < maxCards && (
             <CarouselItem>
               <div className="flex justify-center">
@@ -82,6 +98,7 @@ export function VirtualCardCarousel({
             </CarouselItem>
           )}
         </CarouselContent>
+
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
