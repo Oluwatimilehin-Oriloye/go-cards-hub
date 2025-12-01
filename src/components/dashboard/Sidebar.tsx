@@ -58,8 +58,8 @@ export function Sidebar() {
           {/* Bottom Section - GT Logo, Help & Logout */}
           <div className="border-t border-border px-3 py-4 space-y-3">
             {/* GT Logo */}
-            <div className="flex justify-center pb-2">
-              <img src={gtcoLogo} alt="GTCO Logo" className="h-10 w-auto" />
+            <div className="flex justify-start pb-2">
+              <img src={gtcoLogo} alt="GTCO Logo" className="h-10 w-auto ml-3" />
             </div>
             
             <button
