@@ -16,7 +16,13 @@ const Home = () => {
 
         <main className="p-6 space-y-8">
           {/* Hero Section */}
-          <HeroSection />
+          <HeroSection
+            currentCardCount={0}
+            maxCards={0}
+            onOpenCreateModal={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+          />
 
           {/* Quick Actions */}
           <QuickActions />

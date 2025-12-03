@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopNav } from "@/components/dashboard/TopNav";
