@@ -12,6 +12,7 @@ import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import LandingIndex from "./pages/LandingIndex";
 import GTBankDashboard from "./pages/GTBankDashboard";
+import GTBankLogin from "./pages/GTBankLogin";
 import GoCardsDashboard from "./pages/GoCardsDashboard";
 import Login from "./pages/Login";
 
@@ -24,9 +25,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<GTBankLogin />} />
           <Route path="/" element={<GTBankDashboard />} />
           <Route path="/home" element={<Index />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/gocard-login" element={<Login />} />
           <Route path="/go-cards-dashboard" element={<GoCardsDashboard />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/payments" element={<Payments />} />
