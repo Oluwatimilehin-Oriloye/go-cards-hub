@@ -1,20 +1,53 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { getMyCards } from "@/services/cardService";
+import { getProfile } from "@/services/authService";
 
 interface SendMoneyModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess: () => void;
+}
+
+interface Card {
+  id: string;
+  cardName: string;
+  balance: number;
+}
+
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  accountNumber: string;
 }
 
 type Step = "details" | "otp" | "success";
 
-export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
+export function SendMoneyModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: SendMoneyModalProps) {
   const [step, setStep] = useState<Step>("details");
   const [selectedCard, setSelectedCard] = useState("");
   const [amount, setAmount] = useState("");
@@ -22,29 +55,84 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
   const [accountNumber, setAccountNumber] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [otp, setOtp] = useState("");
+  const [cards, setCards] = useState<Card[]>([]);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [cardsLoading, setCardsLoading] = useState(true);
 
-  const cards = [
-    { id: "temu-card", name: "Temu Card" },
-    { id: "jumia-card", name: "Jumia Card" },
-    { id: "konga-card", name: "Konga Card" },
-  ];
+  useEffect(() => {
+    if (isOpen) {
+      fetchCards();
+      fetchUserProfile();
+    }
+  }, [isOpen]);
+
+  const fetchCards = async () => {
+    try {
+      setCardsLoading(true);
+      const data = await getMyCards();
+      setCards(data);
+    } catch (error) {
+      console.error("Error fetching cards:", error);
+      toast.error("Failed to load cards");
+    } finally {
+      setCardsLoading(false);
+    }
+  };
+
+  const fetchUserProfile = async () => {
+    try {
+      const profile = await getProfile();
+      setUserProfile(profile);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
   const handleContinue = () => {
     if (!selectedCard || !amount || !bankName || !accountNumber) {
       toast.error("Please fill in all fields");
       return;
     }
+
+    const selectedCardData = cards.find((c) => c.id === selectedCard);
+    if (selectedCardData && parseFloat(amount) > selectedCardData.balance) {
+      toast.error("Insufficient card balance");
+      return;
+    }
+
     // Simulate fetching recipient name
     setRecipientName("Adebayo Olusegun");
     setStep("otp");
   };
 
-  const handleInitiateTransaction = () => {
+  const handleInitiateTransaction = async () => {
     if (!otp || otp.length !== 6) {
       toast.error("Please enter a valid 6-digit OTP");
       return;
     }
-    setStep("success");
+
+    try {
+      setLoading(true);
+      // TODO: Call your send money API endpoint here
+      // await sendMoney({ cardId: selectedCard, amount: parseFloat(amount), bankName, accountNumber, otp });
+
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      toast.success("Money sent successfully!");
+      setStep("success");
+
+      // Call the callback if provided
+      if (onSuccess && typeof onSuccess === "function") {
+        onSuccess();
+      }
+    } catch (error) {
+      console.error("Send money failed:", error);
+      toast.error(error.response?.data?.message || "Failed to send money");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDone = () => {
@@ -75,27 +163,53 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
         {step === "details" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">Send Money</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                Send Money
+              </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 Transfer money from your virtual card
               </DialogDescription>
             </DialogHeader>
 
+            {userProfile && (
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <p className="text-xs text-muted-foreground">Sending as:</p>
+                <p className="font-semibold text-foreground">
+                  {userProfile.firstName} {userProfile.lastName}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {userProfile.accountNumber}
+                </p>
+              </div>
+            )}
+
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="card">Select Card to Debit</Label>
-                <Select value={selectedCard} onValueChange={setSelectedCard}>
-                  <SelectTrigger id="card">
-                    <SelectValue placeholder="Choose a card" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cards.map((card) => (
-                      <SelectItem key={card.id} value={card.id}>
-                        {card.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {cardsLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <Select value={selectedCard} onValueChange={setSelectedCard}>
+                    <SelectTrigger id="card">
+                      <SelectValue placeholder="Choose a card" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cards.length === 0 ? (
+                        <SelectItem value="no-cards" disabled>
+                          No cards available
+                        </SelectItem>
+                      ) : (
+                        cards.map((card) => (
+                          <SelectItem key={card.id} value={card.id}>
+                            {card.cardName} (₦{card.balance.toLocaleString()})
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -137,7 +251,10 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button onClick={handleContinue} className="bg-primary hover:bg-primary/90">
+              <Button
+                onClick={handleContinue}
+                className="bg-primary hover:bg-primary/90"
+              >
                 Continue
               </Button>
             </DialogFooter>
@@ -147,7 +264,9 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
         {step === "otp" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">Enter OTP</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                Enter OTP
+              </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 Enter the 6-digit code sent to your phone
               </DialogDescription>
@@ -155,7 +274,9 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
 
             <div className="bg-muted/50 p-4 rounded-lg mb-4">
               <p className="text-sm text-muted-foreground">Recipient Name:</p>
-              <p className="text-lg font-semibold text-foreground">{recipientName}</p>
+              <p className="text-lg font-semibold text-foreground">
+                {recipientName}
+              </p>
             </div>
 
             <div className="space-y-4 py-4">
@@ -177,8 +298,12 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
               <Button variant="outline" onClick={() => setStep("details")}>
                 Back
               </Button>
-              <Button onClick={handleInitiateTransaction} className="bg-primary hover:bg-primary/90">
-                Initiate Transaction
+              <Button
+                onClick={handleInitiateTransaction}
+                className="bg-primary hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Initiate Transaction"}
               </Button>
             </DialogFooter>
           </>
@@ -193,13 +318,17 @@ export function SendMoneyModal({ isOpen, onClose }: SendMoneyModalProps) {
                   Transaction Successful
                 </DialogTitle>
                 <DialogDescription className="text-center">
-                  Your transfer of ₦{amount} was completed successfully
+                  Your transfer of ₦{parseFloat(amount).toLocaleString()} was
+                  completed successfully
                 </DialogDescription>
               </div>
             </DialogHeader>
 
             <DialogFooter>
-              <Button onClick={handleDone} className="w-full bg-primary hover:bg-primary/90">
+              <Button
+                onClick={handleDone}
+                className="w-full bg-primary hover:bg-primary/90"
+              >
                 Done
               </Button>
             </DialogFooter>

@@ -109,7 +109,9 @@ export default function Cards() {
         <div className="flex-1 ml-64">
           <TopNav />
           <main className="p-6">
-            <p className="text-center text-muted-foreground">Loading cards...</p>
+            <p className="text-center text-muted-foreground">
+              Loading cards...
+            </p>
           </main>
         </div>
       </div>

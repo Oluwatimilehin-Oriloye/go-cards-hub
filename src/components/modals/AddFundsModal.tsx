@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Dialog,
   DialogContent,
@@ -11,136 +10,92 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, ArrowRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { fundCard } from "@/services/cardService";
-import { AccountSummaryData } from "@/services/accountService";
+import { addBalance } from "@/services/accountService";
 
-interface FundCardModalProps {
+interface AddFundsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  cardId?: string;
-  cardName?: string;
-  summaryData?: AccountSummaryData | null; // ✅ REAL USER DATA
   onFundSuccess: () => void;
 }
 
 type Step = "details" | "confirm" | "success";
 
-export function FundCardModal({
+export function AddFundsModal({
   isOpen,
   onClose,
-  cardId,
-  cardName,
-  summaryData,
   onFundSuccess,
-}: FundCardModalProps) {
+}: AddFundsModalProps) {
   const [step, setStep] = useState<Step>("details");
   const [amount, setAmount] = useState("");
-  const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Build linkedAccount dynamically from summaryData
-  const linkedAccount = summaryData
-    ? {
-        name: summaryData.accountName,
-        accountNumber: summaryData.accountNumber,
-        bank: summaryData.accountType || "Main Account",
-        balance: summaryData.availableBalance,
-      }
-    : null;
-
-  // Debug logs
-  useEffect(() => {
-    if (isOpen) {
-      console.log("FundCardModal opened with:", {
-        cardId,
-        cardName,
-        linkedAccount,
-      });
-
-      if (!cardId) {
-        toast.error("Card information is missing. Please try again.");
-      }
-
-      if (!linkedAccount) {
-        toast.error("Account data could not be loaded.");
-      }
-    }
-  }, [isOpen, cardId, cardName]);
+  // Mock linked account - in production, fetch from user data
+  const linkedAccount = {
+    name: "Adebayo Olusegun",
+    accountNumber: "0123456789",
+    bank: "GTBank",
+    balance: 500000,
+  };
 
   const handleContinue = () => {
-    if (!linkedAccount) {
-      toast.error("Unable to load your account details.");
-      return;
-    }
-
     if (!amount) {
       toast.error("Please enter an amount");
       return;
     }
-
     const amountNum = parseFloat(amount);
-
     if (amountNum <= 0) {
       toast.error("Please enter a valid amount");
       return;
     }
-
     if (amountNum > linkedAccount.balance) {
-      toast.error("Insufficient balance");
+      toast.error("Insufficient balance in linked account");
       return;
     }
-
     setStep("confirm");
   };
 
   const handleConfirm = async () => {
-    if (!cardId) {
-      toast.error("Card information is missing.");
-      return;
-    }
-
-    if (!pin) {
-      toast.error("Please enter your PIN");
-      return;
-    }
-
-    if (pin.length !== 4) {
-      toast.error("PIN must be 4 digits");
-      return;
-    }
-
     try {
       setLoading(true);
-
-      await fundCard(cardId, {
+      const response = await addBalance({
         amount: parseFloat(amount),
-        pin,
       });
-
-      toast.success("Card funded successfully!");
+      toast.success(response.message || "Funds added successfully!");
       setStep("success");
-    } catch (error: any) {
-      console.error("Failed to fund card:", error);
-      const message = error.response?.data?.message || "Failed to fund card.";
-      toast.error(message);
+    } catch (error) {
+      console.error("Failed to add funds:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to add funds";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDone = () => {
-    onFundSuccess();
+    // Call the callback if provided
+    if (onFundSuccess && typeof onFundSuccess === "function") {
+      onFundSuccess();
+    }
+
+    // Close modal and reset
     onClose();
     resetModal();
+
+    // Navigate to Accounts page after a short delay
+    setTimeout(() => {
+      navigate("/accounts");
+    }, 100);
   };
 
   const resetModal = () => {
     setTimeout(() => {
       setStep("details");
       setAmount("");
-      setPin("");
     }, 300);
   };
 
@@ -149,28 +104,6 @@ export function FundCardModal({
     resetModal();
   };
 
-  // ❌ Stop rendering if critical data is missing
-  if (isOpen && (!cardId || !linkedAccount)) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-destructive">
-              Error
-            </DialogTitle>
-            <DialogDescription>
-              Unable to load card or account details. Please close and try
-              again.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={handleClose}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -178,37 +111,36 @@ export function FundCardModal({
           <>
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">
-                Fund Card
+                Add Funds
               </DialogTitle>
-              <DialogDescription>
-                Add funds to {cardName || "your card"}
+              <DialogDescription className="text-muted-foreground">
+                Add money to your account balance
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-6 py-4">
-              {/* Account Summary */}
               <div className="bg-muted/50 p-4 rounded-lg space-y-3">
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase mb-1">
-                    Linked Account
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                    Linked Bank Account
                   </p>
-                  <p className="text-sm font-semibold">{linkedAccount?.name}</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {linkedAccount.name}
+                  </p>
                   <p className="text-sm text-muted-foreground">
-                    {linkedAccount?.bank} • {linkedAccount?.accountNumber}
+                    {linkedAccount.bank} • {linkedAccount.accountNumber}
                   </p>
                 </div>
-
                 <div className="pt-2 border-t border-border">
-                  <p className="text-xs text-muted-foreground uppercase mb-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                     Available Balance
                   </p>
                   <p className="text-lg font-bold text-foreground">
-                    ₦{linkedAccount?.balance.toLocaleString()}
+                    ₦{linkedAccount.balance.toLocaleString()}
                   </p>
                 </div>
               </div>
 
-              {/* Amount Input */}
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount (₦)</Label>
                 <Input
@@ -225,8 +157,12 @@ export function FundCardModal({
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button onClick={handleContinue} className="bg-primary">
-                Continue <ArrowRight className="ml-2 h-4 w-4" />
+              <Button
+                onClick={handleContinue}
+                className="bg-primary hover:bg-primary/90"
+              >
+                Continue
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>
           </>
@@ -236,54 +172,42 @@ export function FundCardModal({
               <DialogTitle className="text-2xl font-bold">
                 Confirm Transaction
               </DialogTitle>
-              <DialogDescription>
-                Review and confirm the details below.
+              <DialogDescription className="text-muted-foreground">
+                Please review and confirm the details below
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-6 py-4">
               <div className="bg-muted/50 p-4 rounded-lg space-y-3">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">From</span>
-                  <span className="text-sm font-medium">
-                    {linkedAccount?.bank}
+                  <span className="text-sm font-medium text-foreground">
+                    {linkedAccount.bank}
                   </span>
                 </div>
-
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">To</span>
-                  <span className="text-sm font-medium">
-                    {cardName || "Card"}
+                  <span className="text-sm font-medium text-foreground">
+                    Your Account
                   </span>
                 </div>
-
-                <div className="flex justify-between pt-3 border-t border-border">
-                  <span className="text-sm font-semibold">Amount</span>
+                <div className="flex justify-between items-center pt-3 border-t border-border">
+                  <span className="text-sm font-semibold text-foreground">
+                    Amount
+                  </span>
                   <span className="text-xl font-bold text-primary">
                     ₦{parseFloat(amount).toLocaleString()}
                   </span>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="pin">Transaction PIN</Label>
-                <Input
-                  id="pin"
-                  type="password"
-                  placeholder="Enter 4-digit PIN"
-                  maxLength={4}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-                />
-              </div>
-
               <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg">
-                <p className="text-sm">
+                <p className="text-sm text-foreground">
                   <span className="font-semibold">
                     ₦{parseFloat(amount).toLocaleString()}
                   </span>{" "}
-                  will be deducted from your account and credited to{" "}
-                  {cardName || "your card"}.
+                  will be debited from your {linkedAccount.bank} account and
+                  credited to your main account.
                 </p>
               </div>
             </div>
@@ -295,9 +219,9 @@ export function FundCardModal({
               <Button
                 onClick={handleConfirm}
                 disabled={loading}
-                className="bg-primary"
+                className="bg-primary hover:bg-primary/90"
               >
-                {loading ? "Processing..." : "Confirm & Fund"}
+                {loading ? "Processing..." : "Confirm & Add Funds"}
               </Button>
             </DialogFooter>
           </>
@@ -307,17 +231,20 @@ export function FundCardModal({
               <div className="flex flex-col items-center gap-4 py-4">
                 <CheckCircle2 className="h-16 w-16 text-primary" />
                 <DialogTitle className="text-2xl font-bold text-center">
-                  Card Funded Successfully
+                  Funds Added Successfully
                 </DialogTitle>
                 <DialogDescription className="text-center">
-                  ₦{parseFloat(amount).toLocaleString()} has been added to{" "}
-                  {cardName || "your card"}.
+                  ₦{parseFloat(amount).toLocaleString()} has been added to your
+                  account
                 </DialogDescription>
               </div>
             </DialogHeader>
 
             <DialogFooter>
-              <Button onClick={handleDone} className="w-full bg-primary">
+              <Button
+                onClick={handleDone}
+                className="w-full bg-primary hover:bg-primary/90"
+              >
                 Done
               </Button>
             </DialogFooter>

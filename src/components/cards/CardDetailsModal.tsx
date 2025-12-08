@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Copy, Eye, EyeOff, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
@@ -13,6 +14,10 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { getCardDetails, CardDetails } from "@/services/cardService";
+import {
+  AccountSummaryData,
+  getAccountSummary,
+} from "@/services/accountService";
 
 interface CardDetailsModalProps {
   open: boolean;
@@ -35,12 +40,15 @@ export function CardDetailsModal({
   const [internationalPaymentsEnabled, setInternationalPaymentsEnabled] =
     useState(false);
   const [cardDetails, setCardDetails] = useState<CardDetails | null>(null);
+  const [accountDetails, setAccountDetails] =
+    useState<AccountSummaryData | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Fetch full card details when modal opens
   useEffect(() => {
     if (open && cardId) {
       fetchCardDetails();
+      fetchAccountDetails();
     }
   }, [open, cardId]);
 
@@ -54,6 +62,15 @@ export function CardDetailsModal({
       toast.error("Failed to load card details");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAccountDetails = async () => {
+    try {
+      const response = await getAccountSummary();
+      setAccountDetails(response);
+    } catch (error) {
+      toast.error("Failed to load account info");
     }
   };
 
@@ -79,7 +96,8 @@ export function CardDetailsModal({
   const expiryDate = cardDetails.expiryDate;
   const lastFour = cardDetails.cardNumber.slice(-4);
   const cardType = cardDetails.type === "virtual" ? "Visa" : "Mastercard";
-  const holderName = "Timi Adebayo"; // This should come from user info in production
+
+  const holderName = accountDetails?.accountName || "Loading...";
 
   const handleCopyCardNumber = () => {
     navigator.clipboard.writeText(cardDetails.cardNumber);

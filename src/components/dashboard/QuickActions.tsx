@@ -3,9 +3,14 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { CreateVirtualCardModal } from "@/components/modals/CreateVirtualCardModal";
 import { SendMoneyModal } from "@/components/modals/SendMoneyModal";
-import { FundCardModal } from "@/components/modals/FundCardModal";
+import { AddFundsModal } from "@/components/modals/AddFundsModal";
 import { RequestStatementModal } from "@/components/modals/RequestStatementModal";
 import { PayBillsModal } from "@/components/modals/PayBillsModal";
+
+interface QuickActionsProps {
+  currentCardCount: number;
+  onRefresh: () => void;
+}
 
 const actions = [
   {
@@ -40,10 +45,13 @@ const actions = [
   },
 ];
 
-export function QuickActions() {
+export function QuickActions({
+  currentCardCount,
+  onRefresh,
+}: QuickActionsProps) {
   const [showCreateCardModal, setShowCreateCardModal] = useState(false);
   const [showSendMoneyModal, setShowSendMoneyModal] = useState(false);
-  const [showFundCardModal, setShowFundCardModal] = useState(false);
+  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [showStatementModal, setShowStatementModal] = useState(false);
   const [showPayBillsModal, setShowPayBillsModal] = useState(false);
 
@@ -53,7 +61,7 @@ export function QuickActions() {
         setShowSendMoneyModal(true);
         break;
       case "fund":
-        setShowFundCardModal(true);
+        setShowAddFundsModal(true);
         break;
       case "statement":
         setShowStatementModal(true);
@@ -68,12 +76,13 @@ export function QuickActions() {
   };
 
   const MAX_CARDS = 3;
-  const currentCardCount = 3; // Mock data
 
   return (
     <>
       <section>
-        <h2 className="mb-4 text-xl font-semibold text-foreground">Quick Actions</h2>
+        <h2 className="mb-4 text-xl font-semibold text-foreground">
+          Quick Actions
+        </h2>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {actions.map((action) => (
@@ -83,10 +92,15 @@ export function QuickActions() {
               className="group cursor-pointer border border-border bg-secondary p-6 transition-all hover:shadow-md focus-within:ring-2 focus-within:ring-primary"
             >
               <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/20">
-                <action.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                <action.icon
+                  className="h-6 w-6 text-primary"
+                  aria-hidden="true"
+                />
               </div>
               <h3 className="font-semibold text-foreground">{action.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{action.description}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {action.description}
+              </p>
             </Card>
           ))}
         </div>
@@ -98,16 +112,19 @@ export function QuickActions() {
         onClose={() => setShowCreateCardModal(false)}
         currentCardCount={currentCardCount}
         maxCards={MAX_CARDS}
+        onCardCreated={onRefresh}
       />
 
       <SendMoneyModal
         isOpen={showSendMoneyModal}
         onClose={() => setShowSendMoneyModal(false)}
+        onSuccess={onRefresh}
       />
 
-      <FundCardModal
-        isOpen={showFundCardModal}
-        onClose={() => setShowFundCardModal(false)}
+      <AddFundsModal
+        isOpen={showAddFundsModal}
+        onClose={() => setShowAddFundsModal(false)}
+        onFundSuccess={onRefresh}
       />
 
       <RequestStatementModal
@@ -118,6 +135,7 @@ export function QuickActions() {
       <PayBillsModal
         isOpen={showPayBillsModal}
         onClose={() => setShowPayBillsModal(false)}
+        onSuccess={onRefresh}
       />
     </>
   );

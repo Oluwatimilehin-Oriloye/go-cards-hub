@@ -1,4 +1,4 @@
-// src/services/accountService.ts (New or Updated File)
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3000";
@@ -43,5 +43,22 @@ export const getAccountSummary = async (): Promise<AccountSummaryData> => {
     }
   );
 
+  return response.data;
+};
+
+/**
+ * Add balance to user's main account (calls POST /accounts/add-balance)
+ */
+export const addBalance = async (data: { amount: number }): Promise<any> => {
+  const token = localStorage.getItem("authToken");
+  if (!token) throw new Error("Missing authentication token");
+
+  const response = await axios.post(
+    `${API_BASE_URL}/accounts/add-balance`,
+    data,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   return response.data;
 };
