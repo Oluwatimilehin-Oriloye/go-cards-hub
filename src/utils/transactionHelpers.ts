@@ -40,7 +40,7 @@ export const mapTransactionStatus = (
   status: TransactionStatus | string
 ): "completed" | "pending" | "failed" => {
   // Handle both enum and string values - match your backend capitalized format
-  const statusStr = typeof status === "string" ? status : status.toString();
+  const statusStr = typeof status === "string" ? status : String(status);
 
   switch (statusStr) {
     case TransactionStatus.COMPLETED:

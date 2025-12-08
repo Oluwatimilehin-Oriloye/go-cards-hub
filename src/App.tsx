@@ -11,7 +11,8 @@ import Cards from "./pages/Cards";
 import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import LandingIndex from "./pages/LandingIndex";
-
+import GTBankDashboard from "./pages/GTBankDashboard";
+import GoCardsDashboard from "./pages/GoCardsDashboard";
 import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
@@ -26,7 +27,8 @@ const App = () => (
           <Route path="/" element={<LandingIndex />} />
           <Route path="/home" element={<Index />} />
           <Route path="/login" element={<Login />} />
-          {/* <Route path="/home" element={<Home />} /> */}
+          <Route path="/dashboard" element={<GTBankDashboard />} />
+          <Route path="/go-cards-dashboard" element={<GoCardsDashboard />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/transactions" element={<Transactions />} />
