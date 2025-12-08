@@ -1,30 +1,77 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { getMyCards } from "@/services/cardService";
+import { getProfile } from "@/services/authService";
 
 interface RequestStatementModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function RequestStatementModal({ isOpen, onClose }: RequestStatementModalProps) {
+interface Card {
+  id: string;
+  cardName: string;
+}
+
+export function RequestStatementModal({
+  isOpen,
+  onClose,
+}: RequestStatementModalProps) {
   const [selectedCard, setSelectedCard] = useState("");
   const [email, setEmail] = useState("");
   const [success, setSuccess] = useState(false);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [cardsLoading, setCardsLoading] = useState(true);
 
-  const cards = [
-    { id: "all", name: "ALL Cards" },
-    { id: "temu-card", name: "Temu Card" },
-    { id: "jumia-card", name: "Jumia Card" },
-    { id: "konga-card", name: "Konga Card" },
-  ];
+  useEffect(() => {
+    if (isOpen) {
+      fetchCards();
+      fetchUserEmail();
+    }
+  }, [isOpen]);
 
-  const handleSendStatement = () => {
+  const fetchCards = async () => {
+    try {
+      setCardsLoading(true);
+      const data = await getMyCards();
+      setCards(data);
+    } catch (error) {
+      console.error("Error fetching cards:", error);
+      toast.error("Failed to load cards");
+    } finally {
+      setCardsLoading(false);
+    }
+  };
+
+  const fetchUserEmail = async () => {
+    try {
+      const profile = await getProfile();
+      setEmail(profile.email);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
+
+  const handleSendStatement = async () => {
     if (!selectedCard || !email) {
       toast.error("Please fill in all fields");
       return;
@@ -35,7 +82,21 @@ export function RequestStatementModal({ isOpen, onClose }: RequestStatementModal
       return;
     }
 
-    setSuccess(true);
+    try {
+      // TODO: Call your request statement API endpoint here
+      // await requestStatement({ cardId: selectedCard, email });
+
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      toast.success("Statement request sent!");
+      setSuccess(true);
+    } catch (error) {
+      console.error("Request statement failed:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to request statement"
+      );
+    }
   };
 
   const handleClose = () => {
@@ -43,7 +104,7 @@ export function RequestStatementModal({ isOpen, onClose }: RequestStatementModal
     setTimeout(() => {
       setSuccess(false);
       setSelectedCard("");
-      setEmail("");
+      // Don't reset email as it's from user profile
     }, 300);
   };
 
@@ -53,7 +114,9 @@ export function RequestStatementModal({ isOpen, onClose }: RequestStatementModal
         {!success ? (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">Request Statement</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                Request Statement
+              </DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 Get your card transaction statement via email
               </DialogDescription>
@@ -62,18 +125,31 @@ export function RequestStatementModal({ isOpen, onClose }: RequestStatementModal
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="card">Select Card</Label>
-                <Select value={selectedCard} onValueChange={setSelectedCard}>
-                  <SelectTrigger id="card">
-                    <SelectValue placeholder="Choose a card" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cards.map((card) => (
-                      <SelectItem key={card.id} value={card.id}>
-                        {card.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {cardsLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <Select value={selectedCard} onValueChange={setSelectedCard}>
+                    <SelectTrigger id="card">
+                      <SelectValue placeholder="Choose a card" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">ALL Cards</SelectItem>
+                      {cards.length === 0 ? (
+                        <SelectItem value="no-cards" disabled>
+                          No cards available
+                        </SelectItem>
+                      ) : (
+                        cards.map((card) => (
+                          <SelectItem key={card.id} value={card.id}>
+                            {card.cardName}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -92,7 +168,10 @@ export function RequestStatementModal({ isOpen, onClose }: RequestStatementModal
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button onClick={handleSendStatement} className="bg-primary hover:bg-primary/90">
+              <Button
+                onClick={handleSendStatement}
+                className="bg-primary hover:bg-primary/90"
+              >
                 Send Statement
               </Button>
             </DialogFooter>
@@ -112,7 +191,10 @@ export function RequestStatementModal({ isOpen, onClose }: RequestStatementModal
             </DialogHeader>
 
             <DialogFooter>
-              <Button onClick={handleClose} className="w-full bg-primary hover:bg-primary/90">
+              <Button
+                onClick={handleClose}
+                className="w-full bg-primary hover:bg-primary/90"
+              >
                 Done
               </Button>
             </DialogFooter>

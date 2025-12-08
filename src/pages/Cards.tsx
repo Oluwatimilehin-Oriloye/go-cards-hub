@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopNav } from "@/components/dashboard/TopNav";
@@ -108,7 +109,9 @@ export default function Cards() {
         <div className="flex-1 ml-64">
           <TopNav />
           <main className="p-6">
-            <p className="text-center text-muted-foreground">Loading cards...</p>
+            <p className="text-center text-muted-foreground">
+              Loading cards...
+            </p>
           </main>
         </div>
       </div>

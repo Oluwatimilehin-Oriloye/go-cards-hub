@@ -28,24 +28,70 @@ export default function Accounts() {
   const [showRequestPhysicalCardModal, setShowRequestPhysicalCardModal] =
     useState(false);
 
+  // NEW: selectedCard state used for modals that need cardId/cardName
+  const [selectedCard, setSelectedCard] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
   // 🚨 Data Fetching Logic
+  const fetchAccountData = async () => {
+    try {
+      setLoading(true);
+      const data = await getAccountSummary();
+      setSummaryData(data);
+      setError(null);
+    } catch (err) {
+      console.error("API Fetch Error:", err);
+      setError(
+        err.message || "Failed to load account data. Please log in again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountSummary();
-        setSummaryData(data);
-      } catch (err: any) {
-        // Log the full error for debugging but show a friendly message
-        console.error("API Fetch Error:", err);
-        setError(
-          err.message || "Failed to load account data. Please log in again."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    fetchAccountData();
   }, []);
+
+  // ✅ Refresh data after card creation
+  const handleCardCreated = () => {
+    console.log("Card created, refreshing data...");
+    fetchAccountData();
+  };
+
+  // ✅ Refresh data after card funding
+  const handleFundSuccess = () => {
+    console.log("Card funded, refreshing data...");
+    fetchAccountData();
+  };
+
+  // NEW: helper to open fund modal with correct cardId/cardName
+  const openFundModal = () => {
+    // If on the account-balance tab, pick first available virtual card
+    if (activeCard === "account-balance") {
+      const firstCard = summaryData?.cardBalances?.[0];
+      if (!firstCard) {
+        alert("Please create a virtual card first before funding.");
+        return;
+      }
+      setSelectedCard({ id: firstCard.cardId, name: firstCard.cardName });
+      setShowFundCardModal(true);
+      return;
+    }
+
+    // If a specific card tab is active, find that card by cardId
+    const card = summaryData?.cardBalances?.find(
+      (c) => c.cardId === activeCard
+    );
+    if (!card) {
+      alert("Selected card not found. Please try again.");
+      return;
+    }
+    setSelectedCard({ id: card.cardId, name: card.cardName });
+    setShowFundCardModal(true);
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -88,7 +134,7 @@ export default function Accounts() {
                 <CardBalanceTabs
                   activeCard={activeCard}
                   onCardChange={setActiveCard}
-                  cardList={summaryData.cardBalances} // 👈 NEW PROP
+                  cardList={summaryData.cardBalances}
                 />
                 {/* 🚨 Pass the fetched summaryData to the balance card */}
                 <AccountBalanceCard
@@ -97,7 +143,7 @@ export default function Accounts() {
                 />
                 <AccountActions
                   onAddNewCard={() => setShowCreateCardModal(true)}
-                  onFundCard={() => setShowFundCardModal(true)}
+                  onFundCard={openFundModal} // <-- use helper that selects card
                 />
               </div>
 
@@ -107,8 +153,6 @@ export default function Accounts() {
               />
 
               {/* Recent Transactions */}
-              {/* NOTE: If CardTransactions uses the activeCard, it's fine. 
-                   If it needs the full card list, you may need to pass summaryData here too. */}
               <CardTransactions activeCard={activeCard} />
             </>
           )}
@@ -119,12 +163,21 @@ export default function Accounts() {
       <CreateVirtualCardModal
         isOpen={showCreateCardModal}
         onClose={() => setShowCreateCardModal(false)}
+        onCardCreated={handleCardCreated} // ✅ Added callback
         currentCardCount={summaryData?.cardBalances.length || 0}
         maxCards={3}
       />
       <FundCardModal
         isOpen={showFundCardModal}
-        onClose={() => setShowFundCardModal(false)}
+        onClose={() => {
+          setShowFundCardModal(false);
+          setSelectedCard(null);
+        }}
+        onFundSuccess={handleFundSuccess} // ✅ Added callback
+        // NEW: pass selected card id/name into modal
+        cardId={selectedCard?.id}
+        cardName={selectedCard?.name}
+        summaryData={summaryData}
       />
       <RequestPhysicalCardModal
         isOpen={showRequestPhysicalCardModal}

@@ -1,31 +1,44 @@
-import { Home, CreditCard, DollarSign, Bell, Repeat, LogOut, BookOpen } from "lucide-react";
+import {
+  Home,
+  CreditCard,
+  DollarSign,
+  Bell,
+  Repeat,
+  LogOut,
+  BookOpen,
+} from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { LogoutModal } from "@/components/modals/LogoutModal";
 import { SupportModal } from "@/components/modals/SupportModal";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import gtcoLogo from "@/assets/gtco-logo.png";
+import { logout } from "@/services/authService";
 
 export function Sidebar() {
   const { t } = useTranslation();
+
+  const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
 
   const navigation = [
-    { name: t('nav.home'), href: "/home", icon: Home },
-    { name: t('nav.accounts'), href: "/accounts", icon: CreditCard },
-    { name: t('nav.payments'), href: "/payments", icon: DollarSign },
-    { name: t('nav.transactions'), href: "/transactions", icon: Repeat },
-    { name: t('nav.cards'), href: "/cards", icon: CreditCard },
-    { name: t('nav.notifications'), href: "/notifications", icon: Bell },
+    { name: t("nav.home"), href: "/home", icon: Home },
+    { name: t("nav.accounts"), href: "/accounts", icon: CreditCard },
+    { name: t("nav.payments"), href: "/payments", icon: DollarSign },
+    { name: t("nav.transactions"), href: "/transactions", icon: Repeat },
+    { name: t("nav.cards"), href: "/cards", icon: CreditCard },
+    { name: t("nav.notifications"), href: "/notifications", icon: Bell },
   ];
 
   const handleLogout = () => {
+    logout();
     toast.success("Logged out successfully");
     setShowLogoutModal(false);
-    // Add logout logic here
+    navigate("/login");
   };
 
   return (
@@ -49,7 +62,10 @@ export function Sidebar() {
                 )}
                 activeClassName="border-l-4 border-primary bg-muted text-foreground"
               >
-                <item.icon className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                <item.icon
+                  className="mr-3 h-5 w-5 flex-shrink-0"
+                  aria-hidden="true"
+                />
                 <span>{item.name}</span>
               </NavLink>
             ))}
@@ -59,9 +75,13 @@ export function Sidebar() {
           <div className="border-t border-border px-3 py-4 space-y-3">
             {/* GT Logo */}
             <div className="flex justify-start pb-2">
-              <img src={gtcoLogo} alt="GTCO Logo" className="h-10 w-auto ml-3" />
+              <img
+                src={gtcoLogo}
+                alt="GTCO Logo"
+                className="h-10 w-auto ml-3"
+              />
             </div>
-            
+
             <button
               onClick={() => setShowSupportModal(true)}
               className={cn(
@@ -69,8 +89,11 @@ export function Sidebar() {
                 "hover:bg-muted text-foreground"
               )}
             >
-              <BookOpen className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
-              <span>{t('nav.helpBible')}</span>
+              <BookOpen
+                className="mr-3 h-5 w-5 flex-shrink-0"
+                aria-hidden="true"
+              />
+              <span>{t("nav.helpBible")}</span>
             </button>
 
             <button
@@ -80,8 +103,11 @@ export function Sidebar() {
                 "hover:bg-destructive/10 text-destructive"
               )}
             >
-              <LogOut className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
-              <span>{t('nav.logout')}</span>
+              <LogOut
+                className="mr-3 h-5 w-5 flex-shrink-0"
+                aria-hidden="true"
+              />
+              <span>{t("nav.logout")}</span>
             </button>
           </div>
         </div>

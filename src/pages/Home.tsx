@@ -1,10 +1,41 @@
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopNav } from "@/components/dashboard/TopNav";
 import { HeroSection } from "@/components/dashboard/HeroSection";
+import { StackedCardsCarousel } from "@/components/dashboard/StackedCardsCarousel";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecentTransactions } from "@/components/dashboard/RecentTransactions";
+import { CreateVirtualCardModal } from "@/components/modals/CreateVirtualCardModal";
+import { getMyCards, Card } from "@/services/cardService";
 
-const Home = () => {
+const Index = () => {
+  const [showCreateCardModal, setShowCreateCardModal] = useState(false);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [loading, setLoading] = useState(true);
+  const MAX_CARDS = 3;
+
+  // Fetch cards on mount
+  const fetchCards = async () => {
+    try {
+      setLoading(true);
+      const fetchedCards = await getMyCards();
+      setCards(fetchedCards);
+    } catch (error) {
+      console.error("Failed to load cards:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCards();
+  }, []);
+
+  // This function will be called after card creation OR any action that needs refresh
+  const handleRefresh = () => {
+    fetchCards(); // Refetch cards to update the UI
+  };
+
   return (
     <div className="flex min-h-screen w-full bg-background">
       {/* Sidebar */}
@@ -16,17 +47,40 @@ const Home = () => {
 
         <main className="p-6 space-y-8">
           {/* Hero Section */}
-          <HeroSection />
+          <HeroSection
+            currentCardCount={cards.length}
+            maxCards={MAX_CARDS}
+            onOpenCreateModal={() => setShowCreateCardModal(true)}
+          />
 
-          {/* Quick Actions */}
-          <QuickActions />
+          {/* Stacked Cards Carousel */}
+          <StackedCardsCarousel
+            cards={cards}
+            maxCards={MAX_CARDS}
+            onCreateCard={() => setShowCreateCardModal(true)}
+          />
+
+          {/* Quick Actions - ✅ NOW WITH PROPS */}
+          <QuickActions
+            currentCardCount={cards.length}
+            onRefresh={handleRefresh}
+          />
 
           {/* Recent Transactions */}
           <RecentTransactions />
         </main>
       </div>
+
+      {/* Single Create Card Modal - used by both HeroSection and StackedCardsCarousel */}
+      <CreateVirtualCardModal
+        isOpen={showCreateCardModal}
+        onClose={() => setShowCreateCardModal(false)}
+        currentCardCount={cards.length}
+        maxCards={MAX_CARDS}
+        onCardCreated={handleRefresh}
+      />
     </div>
   );
 };
 
-export default Home;
+export default Index;
