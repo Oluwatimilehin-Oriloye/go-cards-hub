@@ -108,10 +108,13 @@ export default function GTBankDashboard() {
               <span className="text-lg font-medium">Internet Banking</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <button 
+            onClick={() => navigate("/login")}
+            className="flex items-center gap-2 hover:text-primary transition-colors"
+          >
             <span className="text-sm text-gray-600">Log Off</span>
             <LogOut className="h-5 w-5 text-gray-600" />
-          </div>
+          </button>
         </div>
 
         {/* Navigation Tabs */}
