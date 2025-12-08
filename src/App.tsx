@@ -24,10 +24,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LandingIndex />} />
+          <Route path="/" element={<GTBankDashboard />} />
           <Route path="/home" element={<Index />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<GTBankDashboard />} />
           <Route path="/go-cards-dashboard" element={<GoCardsDashboard />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/payments" element={<Payments />} />
