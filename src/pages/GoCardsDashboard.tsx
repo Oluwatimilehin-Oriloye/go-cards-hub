@@ -40,7 +40,7 @@ export default function GoCardsDashboard() {
             Welcome to the GO Cards management portal. Manage your virtual and physical cards here.
           </p>
           <Button
-            onClick={() => navigate("/home")}
+            onClick={() => navigate("/gocard-login")}
             className="bg-primary hover:bg-orange-600 text-white px-8 py-3"
           >
             Go to GO Cards App

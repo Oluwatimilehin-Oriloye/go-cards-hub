@@ -16,6 +16,55 @@ export interface UserProfile {
 // 🚨 CRITICAL: Ensure this matches your NestJS base URL and global prefix
 const API_BASE_URL = "http://localhost:3000/auth";
 
+// export const loginWithPassword = async (email: string, password: string) => {
+//   try {
+//     const response = await axios.post(`${API_BASE_URL}/login`, {
+//       email: email.toLowerCase().trim(),
+//       password,
+//     });
+
+//     return {
+//       success: true,
+//       token: response.data.access_token,
+//       message: null,
+//     };
+//   } catch (error: any) {
+//     return {
+//       success: false,
+//       token: null,
+//       message: "Invalid login credentials. Please try again.",
+//     };
+//   }  
+// };
+export const loginWithPassword = async (email: string, password: string) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/login`, {
+      email: email.toLowerCase().trim(),
+      password,
+    });
+
+    // // Store token and user info
+    // localStorage.setItem("token", response.data.access_token);
+    // localStorage.setItem("user", JSON.stringify(response.data.user));
+
+    return {
+      success: true,
+      token: response.data.access_token,
+      user: response.data.user,
+      message: null,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      token: null,
+      user: null,
+      message: "Invalid login credentials. Please try again.",
+    };
+  }
+};
+
+
+
 /**
  * Step 1: Sends the account number to the backend to request an OTP via email.
  */
