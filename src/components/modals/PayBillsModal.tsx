@@ -1,3 +1,4 @@
+import { spendOnCard } from "@/services/cardService";
 import {
   Dialog,
   DialogContent,
@@ -43,13 +44,14 @@ export function PayBillsModal({
   const [step, setStep] = useState<Step>("details");
   const [selectedCard, setSelectedCard] = useState("");
   const [billType, setBillType] = useState("");
+  const [number, setNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [otp, setOtp] = useState("");
   const [cards, setCards] = useState<Card[]>([]);
   const [cardsLoading, setCardsLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const billTypes = [
+  const merchant = [
     { id: "phcn", name: "PHCN (Electricity)" },
     { id: "dstv", name: "DSTV / GOTV" },
     { id: "water", name: "Water" },
@@ -89,7 +91,6 @@ export function PayBillsModal({
       toast.error("Insufficient card balance");
       return;
     }
-
     setStep("otp");
   };
 
@@ -98,23 +99,23 @@ export function PayBillsModal({
       toast.error("Please enter a valid 6-digit OTP");
       return;
     }
-
+  
     try {
       setLoading(true);
-      // TODO: Call your pay bills API endpoint here
-      // await payBill({ cardId: selectedCard, billType, amount: parseFloat(amount), otp });
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+  
+      await spendOnCard(selectedCard, {
+        cardName: cards.find((c) => c.id === selectedCard)?.cardName || "",
+        merchant: billType,
+        amount: parseFloat(amount),
+        billReference: Math.floor(Math.random() * 1_000_000_000), // or your ref from UI
+      });
+  
       toast.success("Bill payment successful!");
       setStep("success");
-
-      // Call the callback if provided
-      if (onSuccess && typeof onSuccess === "function") {
-        onSuccess();
-      }
-    } catch (error) {
+  
+      onSuccess?.();
+  
+    } catch (error: any) {
       console.error("Bill payment failed:", error);
       toast.error(error.response?.data?.message || "Failed to pay bill");
     } finally {
@@ -143,7 +144,7 @@ export function PayBillsModal({
   };
 
   const getBillTypeName = () => {
-    return billTypes.find((b) => b.id === billType)?.name || "Bill";
+    return merchant.find((b) => b.id === billType)?.name || "Bill";
   };
 
   return (
@@ -196,7 +197,7 @@ export function PayBillsModal({
                     <SelectValue placeholder="Choose bill type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {billTypes.map((bill) => (
+                    {merchant.map((bill) => (
                       <SelectItem key={bill.id} value={bill.id}>
                         {bill.name}
                       </SelectItem>
@@ -204,6 +205,19 @@ export function PayBillsModal({
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+              <Label htmlFor="number">Number</Label>
+              <Input
+                id="number"
+                type="text"
+                inputMode="numeric"      // mobile keyboard shows numbers
+                placeholder="0000000000"
+                value={number}
+                onChange={(e) => setNumber(e.target.value.replace(/\D/g, ""))}
+              />
+            </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount (₦)</Label>
@@ -247,7 +261,7 @@ export function PayBillsModal({
                 <Label htmlFor="otp">OTP Code</Label>
                 <Input
                   id="otp"
-                  type="text"
+                  type="password"
                   placeholder="000000"
                   maxLength={6}
                   value={otp}

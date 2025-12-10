@@ -137,3 +137,26 @@ export const sendMoney = async (data: SendMoneyData): Promise<any> => {
   });
   return response.data;
 };
+
+
+// Pay Bills / Spend on Card
+export const spendOnCard = async (
+  cardId: string,
+  data: {
+    cardName: string;
+    merchant: string;
+    amount: number;
+    billReference: number | string;
+  }
+): Promise<any> => {
+  const token = localStorage.getItem("authToken");
+  if (!token) throw new Error("Missing authentication token");
+
+  const response = await axios.post(
+    `${API_BASE_URL}/${cardId}/spend`,
+    data,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  return response.data;
+};
