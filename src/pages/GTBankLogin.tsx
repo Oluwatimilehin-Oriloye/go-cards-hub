@@ -1,5 +1,6 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginWithPassword } from "@/services/authService";
+import { useState} from "react";
 
 export default function GTBankLogin() {
   const navigate = useNavigate();
@@ -19,12 +20,34 @@ export default function GTBankLogin() {
     setPassword(prev => prev.slice(0, -1));
   };
 
-  const handleLogin = () => {
-    navigate("/");
-  };
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleLogin = async () => {
+    setErrorMessage("");
+  
+    const result = await loginWithPassword(userId, password);
+  
+    if (result.success) {
+
+      // Store User + Token
+      localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.setItem("token", result.token);
+      
+      navigate("/dashboard");
+      return;
+    }
+  
+    setErrorMessage(result.message);
+  
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 3000);
+  }; 
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
+      
       {/* Top Header with Logo */}
       <div className="bg-white py-4 px-8 flex justify-end border-b border-gray-200">
         <div className="text-right">
@@ -54,6 +77,11 @@ export default function GTBankLogin() {
                 <span className="text-[#FF5F00]">UserID, Account Number, Phone Number or Email</span>{" "}
                 and use the keypad for your password.
               </p>
+              {errorMessage && (
+              <div className="animate-slide-in bg-orange-500 text-white px-4 py-2 rounded mb-4">
+                {errorMessage}
+              </div>
+            )}
 
               {/* Login Form */}
               <div className="space-y-4">

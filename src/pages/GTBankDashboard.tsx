@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Home,
@@ -92,9 +92,22 @@ export default function GTBankDashboard() {
   const [hideBalance, setHideBalance] = useState(false);
   const [hideBVN, setHideBVN] = useState(false);
 
+  const [user, setUser] = useState<any | null>(null);
+
   const toggleMenu = (label: string) => {
     setExpandedMenu(expandedMenu === label ? null : label);
   };
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (!stored) {
+      navigate("/login");
+      return;
+    }
+    setUser(JSON.parse(stored));
+  }, []);
+
+  if (!user) return null; // Prevent UI flash before loading
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -109,7 +122,7 @@ export default function GTBankDashboard() {
             </div>
           </div>
           <button 
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
             className="flex items-center gap-2 hover:text-primary transition-colors"
           >
             <span className="text-sm text-gray-600">Log Off</span>
@@ -131,9 +144,9 @@ export default function GTBankDashboard() {
           ))}
           <Button
             onClick={() => navigate("/go-cards-dashboard")}
-            className="bg-primary hover:bg-orange-600 text-white rounded-full px-6 py-2 text-sm font-bold shadow-lg hover:shadow-xl transition-all"
+            className="bg-primary hover:bg-orange-600 text-white px-6 py-2 text-sm font-bold shadow-lg hover:shadow-xl transition-all"
           >
-            GT GO CARDS
+            GT Go-Cards
           </Button>
         </div>
       </header>
@@ -197,32 +210,58 @@ export default function GTBankDashboard() {
 
         {/* Main Content */}
         <main className="flex-1 p-6">
-          {/* Welcome Section */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-light text-gray-700 mb-4">Welcome, Philip</h1>
-            <div className="space-y-1 text-sm">
-              <p>
-                <span className="text-primary font-medium">Your last login:</span>{" "}
-                <span className="text-gray-600">08-December-2025 at 12:28:17 PM (GMT+1)</span>
-              </p>
-              <p>
-                <span className="text-primary font-medium">BVN:</span>{" "}
-                <span className="text-gray-600">{hideBVN ? "••••••••••" : "22497211079"}</span>
-              </p>
-              <p>
-                <span className="text-primary font-medium">Token Serial Number:</span>{" "}
-                <span className="text-gray-600">Token is not attached to this account</span>
-              </p>
-              <p>
-                <span className="text-primary font-medium">NIN:</span>{" "}
-                <span className="text-gray-600">{hideBVN ? "••••••••••" : "99295889874"}</span>
-              </p>
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              <Switch checked={hideBVN} onCheckedChange={setHideBVN} />
-              <span className="text-primary text-sm font-medium">Hide BVN and NIN</span>
-            </div>
+
+        {/* Welcome Section */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-light text-gray-700 mb-4">
+            Welcome, {user?.firstName}
+          </h1>
+
+          <div className="space-y-1 text-sm">
+            <p>
+              <span className="text-primary font-medium">Your last login:</span>{" "}
+              <span className="text-gray-600">
+              {user?.lastLogin
+                  ? new Date(user.lastLogin).toLocaleString("en-NG", {
+                      timeZone: "Africa/Lagos",
+                      hour12: true,
+                    })
+                  : new Date().toLocaleString("en-NG", {
+                      timeZone: "Africa/Lagos",
+                      hour12: true,
+                    })
+                }
+              </span>
+            </p>
+
+            <p>
+              <span className="text-primary font-medium">BVN:</span>{" "}
+              <span className="text-gray-600">
+                {hideBVN ? "••••••••••" : user?.bvn}
+              </span>
+            </p>
+
+            <p>
+              <span className="text-primary font-medium">Token Serial Number:</span>{" "}
+              <span className="text-gray-600">
+                Token is not attached to this account
+              </span>
+            </p>
+
+            <p>
+              <span className="text-primary font-medium">NIN:</span>{" "}
+              <span className="text-gray-600">
+                {hideBVN ? "••••••••••" : user?.nin}
+              </span>
+            </p>
           </div>
+
+          <div className="flex items-center gap-2 mt-2">
+            <Switch checked={hideBVN} onCheckedChange={setHideBVN} />
+            <span className="text-primary text-sm font-medium">Hide BVN and NIN</span>
+          </div>
+        </div>
+
 
           {/* Did You Know Section */}
           <div className="bg-green-600 text-white p-4 rounded mb-6">
@@ -251,27 +290,43 @@ export default function GTBankDashboard() {
                   <TableHead className="text-white font-medium">Account Name</TableHead>
                   <TableHead className="text-white font-medium">Account Type</TableHead>
                   <TableHead className="text-white font-medium">Currency</TableHead>
-                  <TableHead className="text-white font-medium">Account Status</TableHead>
+                  <TableHead className="text-white font-medium">Status</TableHead>
                   <TableHead className="text-white font-medium">Book Balance</TableHead>
                   <TableHead className="text-white font-medium">Balance</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
-                <TableRow className="hover:bg-gray-50">
-                  <TableCell className="text-primary font-medium cursor-pointer hover:underline">
-                    0718259676
-                  </TableCell>
-                  <TableCell>TORIOLA, PHILIP GBOUNMI</TableCell>
-                  <TableCell>SAVINGS</TableCell>
-                  <TableCell>NGN</TableCell>
-                  <TableCell>Active</TableCell>
-                  <TableCell>{hideBalance ? "••••••" : "147.93"}</TableCell>
-                  <TableCell className="font-bold">
-                    {hideBalance ? "••••••" : "143.63"}
-                  </TableCell>
-                </TableRow>
+                {user && (
+                  <TableRow className="hover:bg-gray-50">
+                    <TableCell className="text-primary font-medium cursor-pointer hover:underline">
+                      {user.accountNumber}
+                    </TableCell>
+
+                    <TableCell>
+                      {`${user.lastName?.toUpperCase()}, ${user.firstName?.toUpperCase()}`}
+                    </TableCell>
+
+                    <TableCell>
+                      SAVINGS
+                    </TableCell>
+
+                    <TableCell>NGN</TableCell>
+
+                    <TableCell>Active</TableCell>
+
+                    <TableCell>
+                      {hideBalance ? "••••••" : Number(user.accountBalance).toFixed(2)}
+                    </TableCell>
+
+                    <TableCell className="font-bold">
+                      {hideBalance ? "••••••" : Number(user.accountBalance).toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
+
             <p className="text-sm text-gray-500 mt-2">
               * Click on the <span className="text-primary font-medium">Account Number</span> to see
               details for an account.
