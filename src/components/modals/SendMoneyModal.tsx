@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,7 @@ import {
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getMyCards } from "@/services/cardService";
+import { getMyCards, sendMoney } from "@/services/cardService";
 import { getProfile } from "@/services/authService";
 
 interface SendMoneyModalProps {
@@ -32,6 +33,7 @@ interface Card {
   id: string;
   cardName: string;
   balance: number;
+  status: string;
 }
 
 interface UserProfile {
@@ -71,7 +73,11 @@ export function SendMoneyModal({
     try {
       setCardsLoading(true);
       const data = await getMyCards();
-      setCards(data);
+
+      // FIX: only show active cards
+      const activeCards = data.filter((card) => card.status === "active");
+
+      setCards(activeCards);
     } catch (error) {
       console.error("Error fetching cards:", error);
       toast.error("Failed to load cards");
@@ -101,8 +107,9 @@ export function SendMoneyModal({
       return;
     }
 
-    // Simulate fetching recipient name
+    // Still using dummy recipient name until you implement real lookup
     setRecipientName("Adebayo Olusegun");
+
     setStep("otp");
   };
 
@@ -114,22 +121,26 @@ export function SendMoneyModal({
 
     try {
       setLoading(true);
-      // TODO: Call your send money API endpoint here
-      // await sendMoney({ cardId: selectedCard, amount: parseFloat(amount), bankName, accountNumber, otp });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // REAL send money API call
+      await sendMoney({
+        cardId: selectedCard,
+        amount: parseFloat(amount),
+        bankName,
+        accountNumber,
+        recipientName,
+        otp,
+      });
 
       toast.success("Money sent successfully!");
       setStep("success");
 
-      // Call the callback if provided
-      if (onSuccess && typeof onSuccess === "function") {
-        onSuccess();
-      }
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error("Send money failed:", error);
-      toast.error(error.response?.data?.message || "Failed to send money");
+      toast.error(
+        error.response?.data?.message || "Transaction failed. Try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -160,21 +171,22 @@ export function SendMoneyModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
+        {/* DETAILS STEP */}
         {step === "details" && (
           <>
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">
                 Send Money
               </DialogTitle>
-              <DialogDescription className="text-muted-foreground">
+              <DialogDescription>
                 Transfer money from your virtual card
               </DialogDescription>
             </DialogHeader>
 
             {userProfile && (
-              <div className="bg-muted/50 p-3 rounded-lg">
+              <div className="bg-muted/50 p-3 rounded-lg mb-4">
                 <p className="text-xs text-muted-foreground">Sending as:</p>
-                <p className="font-semibold text-foreground">
+                <p className="font-semibold">
                   {userProfile.firstName} {userProfile.lastName}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -183,22 +195,24 @@ export function SendMoneyModal({
               </div>
             )}
 
-            <div className="space-y-4 py-4">
+            <div className="space-y-4">
+              {/* CARD SELECTION */}
               <div className="space-y-2">
-                <Label htmlFor="card">Select Card to Debit</Label>
+                <Label>Select Card to Debit</Label>
+
                 {cardsLoading ? (
-                  <div className="flex items-center justify-center py-4">
+                  <div className="flex justify-center py-4">
                     <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   </div>
                 ) : (
                   <Select value={selectedCard} onValueChange={setSelectedCard}>
-                    <SelectTrigger id="card">
+                    <SelectTrigger>
                       <SelectValue placeholder="Choose a card" />
                     </SelectTrigger>
                     <SelectContent>
                       {cards.length === 0 ? (
-                        <SelectItem value="no-cards" disabled>
-                          No cards available
+                        <SelectItem value="none" disabled>
+                          No active cards
                         </SelectItem>
                       ) : (
                         cards.map((card) => (
@@ -212,10 +226,10 @@ export function SendMoneyModal({
                 )}
               </div>
 
+              {/* AMOUNT */}
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount (₦)</Label>
+                <Label>Amount (₦)</Label>
                 <Input
-                  id="amount"
                   type="number"
                   placeholder="0.00"
                   value={amount}
@@ -223,21 +237,21 @@ export function SendMoneyModal({
                 />
               </div>
 
+              {/* BANK NAME */}
               <div className="space-y-2">
-                <Label htmlFor="bankName">Bank Name</Label>
+                <Label>Bank Name</Label>
                 <Input
-                  id="bankName"
                   type="text"
-                  placeholder="e.g., GTBank, Access Bank"
+                  placeholder="GTBank, Access Bank"
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                 />
               </div>
 
+              {/* ACCOUNT NUMBER */}
               <div className="space-y-2">
-                <Label htmlFor="account">Recipient Account Number</Label>
+                <Label>Recipient Account Number</Label>
                 <Input
-                  id="account"
                   type="text"
                   placeholder="0123456789"
                   maxLength={10}
@@ -251,47 +265,38 @@ export function SendMoneyModal({
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button
-                onClick={handleContinue}
-                className="bg-primary hover:bg-primary/90"
-              >
+              <Button className="bg-primary" onClick={handleContinue}>
                 Continue
               </Button>
             </DialogFooter>
           </>
         )}
 
+        {/* OTP STEP */}
         {step === "otp" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">
-                Enter OTP
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground">
+              <DialogTitle className="text-xl font-bold">Enter OTP</DialogTitle>
+              <DialogDescription>
                 Enter the 6-digit code sent to your phone
               </DialogDescription>
             </DialogHeader>
 
-            <div className="bg-muted/50 p-4 rounded-lg mb-4">
-              <p className="text-sm text-muted-foreground">Recipient Name:</p>
-              <p className="text-lg font-semibold text-foreground">
-                {recipientName}
-              </p>
+            <div className="bg-muted/40 p-3 rounded-lg mb-4">
+              <p className="text-sm text-muted-foreground">Recipient Name</p>
+              <p className="font-semibold">{recipientName}</p>
             </div>
 
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="otp">OTP Code</Label>
-                <Input
-                  id="otp"
-                  type="text"
-                  placeholder="000000"
-                  maxLength={6}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                  className="text-center text-2xl tracking-widest"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>OTP Code</Label>
+              <Input
+                type="text"
+                maxLength={6}
+                placeholder="000000"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                className="text-center text-2xl tracking-widest"
+              />
             </div>
 
             <DialogFooter>
@@ -299,9 +304,9 @@ export function SendMoneyModal({
                 Back
               </Button>
               <Button
-                onClick={handleInitiateTransaction}
-                className="bg-primary hover:bg-primary/90"
+                className="bg-primary"
                 disabled={loading}
+                onClick={handleInitiateTransaction}
               >
                 {loading ? "Processing..." : "Initiate Transaction"}
               </Button>
@@ -309,26 +314,22 @@ export function SendMoneyModal({
           </>
         )}
 
+        {/* SUCCESS STEP */}
         {step === "success" && (
           <>
-            <DialogHeader>
-              <div className="flex flex-col items-center gap-4 py-4">
-                <CheckCircle2 className="h-16 w-16 text-primary" />
-                <DialogTitle className="text-2xl font-bold text-center">
-                  Transaction Successful
-                </DialogTitle>
-                <DialogDescription className="text-center">
-                  Your transfer of ₦{parseFloat(amount).toLocaleString()} was
-                  completed successfully
-                </DialogDescription>
-              </div>
+            <DialogHeader className="flex flex-col items-center py-6">
+              <CheckCircle2 className="h-16 w-16 text-primary mb-4" />
+              <DialogTitle className="text-2xl font-bold text-center">
+                Transaction Successful
+              </DialogTitle>
+              <DialogDescription className="text-center">
+                Your transfer of ₦{parseFloat(amount).toLocaleString()} was
+                successful.
+              </DialogDescription>
             </DialogHeader>
 
             <DialogFooter>
-              <Button
-                onClick={handleDone}
-                className="w-full bg-primary hover:bg-primary/90"
-              >
+              <Button className="w-full bg-primary" onClick={handleDone}>
                 Done
               </Button>
             </DialogFooter>

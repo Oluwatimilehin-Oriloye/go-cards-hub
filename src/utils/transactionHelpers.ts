@@ -22,7 +22,7 @@ export interface UITransaction {
   fees?: number;
 }
 
-// Map backend transaction type to UI type
+// Map backend transaction type to UI type (normalize everything)
 export const mapTransactionType = (
   type: TransactionType | string
 ): "inflow" | "outflow" => {
@@ -32,6 +32,8 @@ export const mapTransactionType = (
     "Deposit",
     "Inflow",
   ];
+
+  // Everything else is outflow
   return inflowTypes.includes(type as any) ? "inflow" : "outflow";
 };
 
@@ -39,17 +41,19 @@ export const mapTransactionType = (
 export const mapTransactionStatus = (
   status: TransactionStatus | string
 ): "completed" | "pending" | "failed" => {
-  // Handle both enum and string values - match your backend capitalized format
   const statusStr = typeof status === "string" ? status : String(status);
 
   switch (statusStr) {
     case TransactionStatus.COMPLETED:
+    case "COMPLETED":
     case "Completed":
       return "completed";
     case TransactionStatus.PENDING:
+    case "PENDING":
     case "Pending":
       return "pending";
     case TransactionStatus.FAILED:
+    case "FAILED":
     case "Failed":
       return "failed";
     default:
@@ -78,19 +82,15 @@ export const formatTime = (isoDate: string): string => {
   });
 };
 
-// Get card name from cardId (you might need to fetch this from cards service)
+// Get card name from cardId (placeholder)
 export const getCardName = (cardId?: string): string => {
   if (!cardId) return "N/A";
-  // This is a placeholder - you should fetch actual card name from your cards service
-  // For now, returning a generic name
-  return "Card";
+  return "Card"; // Replace with actual lookup if available
 };
 
-// Get last 4 digits of card (you might need to fetch this from cards service)
+// Get last 4 digits of card (placeholder)
 export const getCardLastFour = (cardId?: string): string => {
   if (!cardId) return "0000";
-  // This is a placeholder - you should fetch actual last 4 from your cards service
-  // For now, returning last 4 characters of cardId
   return cardId.slice(-4);
 };
 
@@ -100,14 +100,6 @@ export const transformTransaction = (
   cardName?: string,
   cardLastFour?: string
 ): UITransaction => {
-  // Debug: Log the actual status value from backend
-  console.log(
-    "Transaction status from backend:",
-    transaction.status,
-    "Type:",
-    typeof transaction.status
-  );
-
   return {
     id: transaction.id,
     type: mapTransactionType(transaction.type),
@@ -121,15 +113,14 @@ export const transformTransaction = (
     merchantName: transaction.merchant,
     merchantCategory: getMerchantCategory(transaction.merchant),
     referenceNumber: transaction.reference || transaction.id,
-    fees: 0, // Add if you have fees in your backend
+    fees: 0,
   };
 };
 
-// Get merchant category (placeholder - you might want to add this to backend)
+// Merchant category helper
 const getMerchantCategory = (merchant?: string): string | undefined => {
   if (!merchant) return undefined;
 
-  // Simple categorization based on merchant name
   const lowerMerchant = merchant.toLowerCase();
   if (lowerMerchant.includes("netflix") || lowerMerchant.includes("spotify")) {
     return "Entertainment";

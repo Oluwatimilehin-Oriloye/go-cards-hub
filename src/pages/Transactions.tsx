@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Sidebar } from "@/components/dashboard/Sidebar";
@@ -21,10 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  transactionService,
-  TransactionType,
-} from "@/services/transactionService";
+import { transactionService } from "@/services/transactionService";
 import {
   transformTransactions,
   UITransaction,
@@ -48,18 +46,15 @@ export default function Transactions() {
   >([]);
   const [cardsLoading, setCardsLoading] = useState(true);
 
-  // Filters - Initialize cardFilter from URL params
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [cardFilter, setCardFilter] = useState<string>(
     searchParams.get("card") || "all"
   );
 
-  // Fetch user's cards on mount
   useEffect(() => {
     fetchUserCards();
   }, []);
 
-  // Update cardFilter when URL changes
   useEffect(() => {
     const cardParam = searchParams.get("card");
     if (cardParam) {
@@ -88,16 +83,11 @@ export default function Transactions() {
       setLoading(true);
       setError(null);
 
-      // Build filters
       const filters: any = {};
 
+      // Send simple "inflow" / "outflow" string to backend
       if (typeFilter !== "all") {
-        // Map UI filter to backend enum
-        if (typeFilter === "inflow") {
-          filters.type = TransactionType.INFLOW;
-        } else if (typeFilter === "outflow") {
-          filters.type = TransactionType.OUTFLOW;
-        }
+        filters.type = typeFilter; // backend groups types by this
       }
 
       if (cardFilter !== "all") {

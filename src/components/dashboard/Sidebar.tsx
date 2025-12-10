@@ -38,7 +38,7 @@ export function Sidebar() {
     logout();
     toast.success("Logged out successfully");
     setShowLogoutModal(false);
-    navigate("/login");
+    navigate("/dashboard");
   };
 
   return (

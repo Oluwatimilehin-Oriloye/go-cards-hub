@@ -121,10 +121,10 @@ export function QuickActions({
         onSuccess={onRefresh}
       />
 
+
       <AddFundsModal
         isOpen={showAddFundsModal}
         onClose={() => setShowAddFundsModal(false)}
-        onFundSuccess={onRefresh}
       />
 
       <RequestStatementModal
