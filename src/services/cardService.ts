@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3000/cards";
@@ -27,6 +28,15 @@ export interface CardDetails {
   currency: string;
   balance: number;
   createdAt: string;
+}
+
+export interface SendMoneyData {
+  cardId: string;
+  amount: number;
+  bankName: string;
+  accountNumber: string;
+  recipientName: string;
+  otp: string;
 }
 
 // Fetch all cards for the logged-in user
@@ -113,6 +123,16 @@ export const fundCard = async (
   if (!token) throw new Error("Missing authentication token");
 
   const response = await axios.post(`${API_BASE_URL}/${cardId}/fund`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const sendMoney = async (data: SendMoneyData): Promise<any> => {
+  const token = localStorage.getItem("authToken");
+  if (!token) throw new Error("Missing authentication token");
+
+  const response = await axios.post(`${API_BASE_URL}/send-money`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
