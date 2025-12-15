@@ -1,6 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Mail, MessageCircle, HelpCircle } from "lucide-react";
+import FAQsModal from "./FAQsModal";
+import { useState } from "react";
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -11,6 +13,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
   const handleEmailSupport = () => {
     window.location.href = "mailto:support@gocards.com?subject=GO CARDS Support Request";
   };
+  const [openFAQ, setOpenFAQ] = useState(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -39,7 +42,7 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
             </div>
           </div>
 
-          {/* FAQs */}
+          {/* FAQs
           <div className="p-4 border border-border rounded-lg hover:border-primary/50 hover:bg-muted/50 transition-all cursor-pointer">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -52,7 +55,29 @@ export function SupportModal({ isOpen, onClose }: SupportModalProps) {
                 </p>
               </div>
             </div>
+          </div> */}
+
+          {/* FAQs Card */}
+      <div
+        className="p-4 border border-border rounded-lg hover:border-primary/50 hover:bg-muted/50 transition-all cursor-pointer"
+        onClick={() => setOpenFAQ(true)}
+      >
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <HelpCircle className="h-6 w-6 text-primary" />
           </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-foreground mb-1">FAQs</h3>
+            <p className="text-sm text-muted-foreground">
+              Browse frequently asked questions
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ Modal */}
+      <FAQsModal open={openFAQ} onOpenChange={setOpenFAQ} />
+    
 
           {/* Live Chat */}
           <div className="p-4 border border-border rounded-lg hover:border-primary/50 hover:bg-muted/50 transition-all cursor-pointer">

@@ -64,11 +64,10 @@ export default function GTBankLogin() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 px-8 py-6">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex px-8 py-6 flex-row gap-6">
+        <div className="flex flex-col lg:flex-col-6 gap-8 w-full">
           {/* Left Side - Login Form */}
-          <div className="flex-1">
-            <div className="bg-white rounded-lg shadow-md p-8 max-w-2xl">
+          <div className="bg-white rounded-lg shadow-md p-8 max-w-fit">
               <h2 className="text-xl font-semibold text-center mb-2">
                 Online Realtime Balances and Transactions
               </h2>
@@ -158,37 +157,8 @@ export default function GTBankLogin() {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Side - GTWorld Promo */}
-          <div className="lg:w-80 space-y-6">
-            {/* GTWorld Card */}
-            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg p-6 text-center">
-              <p className="text-gray-600 text-lg">Do More</p>
-              <h3 className="text-[#FF5F00] text-2xl font-bold mb-4">with GTWorld</h3>
-              <div className="bg-gray-300 h-48 rounded-lg flex items-center justify-center">
-                <span className="text-gray-500">GTWorld App Preview</span>
-              </div>
-              <div className="flex justify-center gap-2 mt-4">
-                <div className="bg-black text-white text-xs px-3 py-1 rounded">App Store</div>
-                <div className="bg-black text-white text-xs px-3 py-1 rounded">Google Play</div>
-              </div>
-            </div>
-
-            {/* Fraud Warning */}
-            <div className="bg-white rounded-lg p-6 shadow-md text-center">
-              <h3 className="text-[#FF5F00] text-lg font-semibold mb-4">Suspect a fraudulent site?</h3>
-              <div className="bg-gray-100 h-24 rounded flex items-center justify-center mb-4">
-                <span className="text-gray-500 text-sm">Browser Security Image</span>
-              </div>
-              <p className="text-gray-600 text-sm">
-                Please report to us by<br />sending an email to
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Cards */}
+          {/* Bottom Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 max-w-4xl">
           {/* Security Tips */}
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -237,6 +207,36 @@ export default function GTBankLogin() {
             </button>
           </div>
         </div>
+
+          
+        </div>
+        {/* Right Side - GTWorld Promo */}
+        <div className="lg:w-120 space-y-6">
+            {/* GTWorld Card */}
+            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg p-6 text-center">
+              <p className="text-gray-600 text-lg">Do More</p>
+              <h3 className="text-[#FF5F00] text-2xl font-bold mb-4">with GTWorld</h3>
+              <div className="bg-gray-300 h-48 rounded-lg flex items-center justify-center">
+                <span className="text-gray-500">GTWorld App Preview</span>
+              </div>
+              <div className="flex justify-center gap-2 mt-4">
+                <div className="bg-black text-white text-xs px-3 py-1 rounded">App Store</div>
+                <div className="bg-black text-white text-xs px-3 py-1 rounded">Google Play</div>
+              </div>
+            </div>
+
+            {/* Fraud Warning */}
+            <div className="bg-white rounded-lg p-6 shadow-md text-center">
+              <h3 className="text-[#FF5F00] text-lg font-semibold mb-4">Suspect a fraudulent site?</h3>
+              <div className="bg-gray-100 h-24 rounded flex items-center justify-center mb-4">
+                <span className="text-gray-500 text-sm">Browser Security Image</span>
+              </div>
+              <p className="text-gray-600 text-sm">
+                Please report to us by<br />sending an email to
+              </p>
+            </div>
+        </div>
+        
       </div>
 
       {/* Footer */}
