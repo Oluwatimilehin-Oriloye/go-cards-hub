@@ -107,8 +107,34 @@ export function SendMoneyModal({
       return;
     }
 
-    // Still using dummy recipient name until you implement real lookup
-    setRecipientName("Adebayo Olusegun");
+    // Pool of sample names
+    const sampleNames = [
+      "Adebayo Olusegun",
+      "Ngozi Chukwu",
+      "Kemi Adeola",
+      "Tunde Bakare",
+      "Ibrahim Musa",
+      "Funmilayo Adetutu",
+      "Samuel Okoro",
+      "Chidera Nwosu",
+      "Blessing Ekanem",
+      "Opeyemi Adeniran",
+      "Halima Sadiq",
+      "Femi Akinwande",
+      "Adaobi Mba",
+      "Rotimi Alade",
+      "Zainab Umar"
+    ];
+
+    // Utility to fetch a random name
+    function getRandomName() {
+      const index = Math.floor(Math.random() * sampleNames.length);
+      return sampleNames[index];
+    }
+
+    // Usage
+    setRecipientName(getRandomName());
+
 
     setStep("otp");
   };
@@ -288,16 +314,19 @@ export function SendMoneyModal({
             </div>
 
             <div className="space-y-2">
-              <Label>OTP Code</Label>
-              <Input
-                type="text"
-                maxLength={6}
-                placeholder="000000"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                className="text-center text-2xl tracking-widest"
-              />
-            </div>
+
+              
+            <Label>OTP Code</Label>
+            <Input
+              type="password"
+              maxLength={6}
+              placeholder="••••••"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+              className="text-center text-2xl tracking-widest"
+            />
+          </div>
+
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setStep("details")}>
